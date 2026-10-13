@@ -73,7 +73,7 @@ for (const lang of langs) {
       await settle(page);
       const pill = langSwitch(page, other);
       const box = (await pill.boundingBox())!;
-      // RU is the left half, KZ the right one: click the half of the language already shown.
+      // Click the current language's half (RU left, KZ right).
       await pill.click({ position: { x: box.width * (lang === "ru" ? 0.25 : 0.75), y: box.height / 2 } });
       await expect(page).toHaveURL(
         (url) => langOfPath(url.pathname) === other && withoutLang(url.pathname) === "/catalog",
@@ -125,7 +125,7 @@ for (const lang of langs) {
       const section = page.locator("section").filter({ has: slider });
       const before = await section.innerText();
       await slider.fill("8");
-      // 1 spoon = 5 g; the sugar row shows the grams per day.
+      // 1 spoon = 5 g
       await expect(section.getByText(`${8 * 5} ${t.calc.perDay}`).first()).toBeVisible();
       expect(await section.innerText()).not.toBe(before);
     });

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** One side of the pack, prepared at build time by the product page (see getImage there). */
+/** One side of the pack, built by the product page. */
 export interface ViewerImage {
   src: string;
   width: number;
   height: number;
   avif: string;
   webp: string;
-  /** Large WebP shown in the zoom overlay. */
+  /** Large WebP for zoom. */
   zoom: string;
 }
 
@@ -23,7 +23,7 @@ const MAX_TILT = 26;
 const faceClass =
   'absolute inset-0 m-auto max-h-[92%] max-w-[92%] object-contain backface-hidden drop-shadow-[0_30px_40px_rgba(20,54,94,.22)]';
 
-// Rendered width of a face: 92% of a box up to 420px wide, or most of the phone screen.
+// Face width: 92% of a box up to 420px, ~85vw on phones.
 const SIZES = '(max-width: 520px) 85vw, 390px';
 
 const Face = ({
@@ -61,7 +61,7 @@ export const ProductViewer = ({ name, front, back, labels }: Props) => {
   const [showBack, setShowBack] = useState(false);
   const [tilt, setTilt] = useState(0);
   const [zoom, setZoom] = useState(false);
-  // Last pointer X while dragging, null when idle.
+  // Pointer X while dragging, else null.
   const dragX = useRef<number | null>(null);
   const [dragging, setDragging] = useState(false);
 

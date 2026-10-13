@@ -18,7 +18,7 @@ export const getStaticPaths = langPaths;
 const lang = langFromParam(Astro.params.lang);
 const t = getDict(lang);
 
-// Number badges of the four advantages: tinted background, text dark enough for 4.5:1 on it.
+// Advantage badges (text contrast ≥ 4.5:1).
 const advColors = [
   { bg: '#EAF1FA', fg: '#33609E' },
   { bg: '#E9F3EE', fg: '#3A6A50' },
@@ -91,7 +91,7 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
           class="absolute aspect-square w-[min(78%,380px)] rounded-full bg-radial-[at_40%_35%] from-white/95 via-sand/50 via-60% to-sand/0 to-72%"
         >
         </div>
-        <!-- Largest element of the first screen: load it first. -->
+        <!-- LCP image: load first. -->
         <Picture
           src={lollipopFront}
           formats={['avif', 'webp']}

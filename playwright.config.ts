@@ -1,26 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
 import { CONSENT_KEY, serializeConsent } from "./src/lib/analytics";
 
-// Three ways to run:
-// - default: production build served by `astro preview` (what CI and visitors get);
-// - E2E_MODE=dev: `astro dev`, for local checks only — some bugs (e.g. a broken React
-//   pre-bundle) show up only on the dev server;
-// - BASE_URL=https://…: test an already running site, no server is started.
-// Ports differ from the defaults, and --ignore-lock lets the tests start their own server even
-// when `astro dev --background` / `astro preview --background` is already running.
+// Modes: default — production build via `astro preview`; E2E_MODE=dev — `astro dev` (local only);
+// BASE_URL=… — an already running site. --ignore-lock: runs next to your own dev/preview server.
 const mode = process.env.E2E_MODE === "dev" ? "dev" : "prod";
 const port = mode === "dev" ? 4328 : 4329;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
-// The site is built with a fake GA4 ID, never the real one from .env: the consent banner and the
-// event code are then part of the build and get tested, while gtag.js is only ever requested on the
-// real domain, which the tests never open (see tests/e2e/analytics.spec.ts).
-// `npm test` builds once (with the same ID) and sets E2E_PREBUILT=1, so the site isn't built twice.
+// Fake GA4 ID: the banner and events get tested, nothing is sent. E2E_PREBUILT=1 skips the build.
 export const E2E_GA_ID = "G-TEST000000";
 const prodCommand = `${process.env.E2E_PREBUILT ? "" : `PUBLIC_GA_ID=${E2E_GA_ID} npx astro build && `}npx astro preview --port ${port} --ignore-lock`;
 
-// Every test starts with analytics declined, so the consent banner does not cover the page.
-// analytics.spec.ts starts from an empty storage to test the banner itself.
+// Analytics declined by default so the banner doesn't cover pages (analytics.spec.ts resets it).
 const declined = {
   cookies: [],
   origins: [

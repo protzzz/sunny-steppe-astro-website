@@ -7,7 +7,7 @@ import { langs } from "@i18n/index";
 
 const publicFile = (path: string) => fileURLToPath(new URL(`../../public${path}`, import.meta.url));
 
-/** In Vite, an imported image's src is "/@fs/<absolute path>?<params>". */
+/** Vite image src: "/@fs/<path>?<params>". */
 const imageFile = (src: string) => decodeURIComponent(src.replace(/^\/@fs/, "").split("?")[0]);
 
 describe("getProducts", () => {
@@ -29,7 +29,7 @@ describe("getProducts", () => {
   it("kz: product names are Kazakh where the translation has them, never empty", () => {
     const ru = getProducts("ru");
     const kz = getProducts("kz");
-    // At least the descriptions must differ, otherwise the Kazakh overrides were not applied.
+    // Kazakh overrides applied.
     expect(kz.some((p, i) => p.lead !== ru[i].lead)).toBe(true);
   });
 

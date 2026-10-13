@@ -1,11 +1,10 @@
 import { getProducts, type Product } from "@data/products";
 import { getDict, type Lang } from "@i18n/index";
 
-// EAEU declarations of conformity, copied from the PDFs in public/docs/.
-// All three cover the same technical regulations of the Customs Union.
+// EAEU declarations, copied from the PDFs in public/docs/.
 export interface Declaration {
   product: Product["id"];
-  /** Path under public/, also used as the download file name. */
+  /** Path under public/, also the download name. */
   file: string;
   number: string;
   validUntil: string;
@@ -34,7 +33,7 @@ export const declarations: Declaration[] = [
   },
 ];
 
-/** Declarations with the product name and the "valid until" line in the given locale. */
+/** Declarations with product name and validity in a language. */
 export const getDeclarations = (lang: Lang) => {
   const t = getDict(lang).docs;
   const products = getProducts(lang);

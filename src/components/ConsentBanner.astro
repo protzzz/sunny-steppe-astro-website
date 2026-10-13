@@ -3,7 +3,7 @@ import type { Dictionary } from '@i18n/index';
 
 interface Props {
   gaId: string;
-  /** PUBLIC_SITE_URL: gtag.js is only requested on this host. */
+  /** gtag.js loads only on this host. */
   siteUrl: string;
   privacyHref: string;
   t: Dictionary['consent'];
@@ -14,8 +14,7 @@ const button =
   'inline-flex min-w-[140px] cursor-pointer items-center justify-center rounded-full px-5 py-3 text-[14px] font-semibold';
 ---
 
-<!-- Shown by the script below when there is no stored choice, or from "Cookie settings" in the footer.
-     Without JavaScript it stays hidden, and nothing is tracked either. -->
+<!-- Shown when there is no stored choice or via footer "Cookie settings". Hidden without JS. -->
 <section
   id="consent-banner"
   data-ga-id={gaId}
@@ -28,7 +27,7 @@ const button =
     {t.text}{' '}
     <a href={privacyHref} class="font-semibold underline underline-offset-2">{t.more}</a>
   </p>
-  <!-- Both choices are equally easy: same size, side by side. -->
+  <!-- Equal buttons for both choices. -->
   <div class="mt-4 flex flex-wrap gap-2.5">
     <button type="button" data-consent="granted" class:list={[button, 'bg-navy text-cream hover:bg-navy/90']}>
       {t.accept}
@@ -63,7 +62,7 @@ const button =
   const gaId = banner.dataset.gaId!;
   const tracked = isTrackedHost(location.hostname, banner.dataset.siteUrl!);
 
-  // localStorage can be unavailable (private mode, blocked storage): then the banner simply asks again.
+  // No localStorage (private mode): the banner asks again.
   const readChoice = () => {
     try {
       return parseConsent(localStorage.getItem(CONSENT_KEY), Date.now());
@@ -75,19 +74,19 @@ const button =
     try {
       localStorage.setItem(CONSENT_KEY, serializeConsent(value, Date.now()));
     } catch {
-      /* the choice still applies to this page */
+      /* still applies to this page */
     }
   };
 
   let active = false;
   let scriptRequested = false;
 
-  /** After consent only: set up gtag and, on the real domain, load gtag.js. */
+  /** After consent: set up gtag; load gtag.js on the real domain only. */
   const start = () => {
     w[`ga-disable-${gaId}`] = false;
     if (!w.gtag) {
       w.dataLayer = w.dataLayer || [];
-      // gtag must push the `arguments` object itself, that is what gtag.js reads.
+      // gtag.js expects the `arguments` object.
       w.gtag = function () {
         w.dataLayer!.push(arguments);
       };
@@ -108,7 +107,7 @@ const button =
     active = true;
   };
 
-  /** Withdrawn consent: stop sending at once and remove the GA cookies. */
+  /** Withdrawal: stop sending, remove GA cookies. */
   const stop = () => {
     active = false;
     w[`ga-disable-${gaId}`] = true;
@@ -138,8 +137,7 @@ const button =
     else if (active || w.gtag) stop();
   });
 
-  // Tracking: one listener for every link on the page, including the React islands. It only
-  // reports the click and never cancels it, so WhatsApp, Instagram and the PDFs always open.
+  // One listener for all links (islands too). Never cancels the click.
   const onLinkClick = (e: MouseEvent) => {
     const target = e.target as Element | null;
     if (target?.closest('[data-consent-open]')) {
@@ -170,7 +168,7 @@ const button =
     });
   };
   document.addEventListener('click', onLinkClick, { capture: true });
-  // Middle click opens the link in a new tab without a `click` event.
+  // Middle click fires no `click`.
   document.addEventListener('auxclick', (e) => e.button === 1 && onLinkClick(e), { capture: true });
 
   const choice = readChoice();

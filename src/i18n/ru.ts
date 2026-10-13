@@ -187,7 +187,7 @@ export const ru = {
       },
     ],
     lineTitle: "Что мы создаём",
-    /** One line under each product in "Что мы создаём", from the client's home page text. */
+    /** Line under each product in "Что мы создаём". */
     line: {
       xylitol: "Ксилит — полезная альтернатива обычному сахару для дома, напитков и любимых рецептов.",
       lollipop: "Леденцы с ксилитом и Омега-3 со вкусом клубники.",
@@ -242,13 +242,13 @@ export const ru = {
     email: "ПОЧТА",
     legal:
       "ИП Sunny Steppe, Казахстан, г. Караганда, район им. Казыбек би, улица Алиханова, дом 34/3. Производитель: SOAR BIOTECH CO., LTD, Dalian, Liaoning, China.",
-    /** Replaces the home page's geography card on the contacts page. */
+    /** Contacts page: replaces the geography card. */
     geoCard: {
       k: "ГЕОГРАФИЯ",
       t: "Казахстан",
       d: "Офис — в Казахстане. Работаем с покупателями в Казахстане и России, условия получения обсуждаем в переписке.",
     },
-    /** Replaces the order card on the contacts page: the number is already in the cards above it. */
+    /** Contacts page: replaces the order card. */
     orderCard: {
       k: "ОФОРМЛЕНИЕ",
       t: "Заказ через WhatsApp",
@@ -297,14 +297,14 @@ export const ru = {
     faqQ: "Есть ли у продукции декларации и другие документы?",
     faqA: "Да. Продукция Sunny Steppe проходит обязательное подтверждение соответствия техническим регламентам ЕАЭС — документы можно открыть прямо здесь. Если для закупки нужен полный пакет документов — напишите нам в WhatsApp.",
   },
-  /** Templates for the delivery placeholders; values come from data/contacts.ts (see i18n/index.ts). */
+  /** Delivery templates; values from data/contacts.ts (i18n/build.ts). */
   delivery: {
     or: "или",
     and: "и",
     pickup: "Самовывоз в {cities}.",
     paidByRecipient: "Доставка оплачивается получателем.",
     paidByRecipientShort: "Доставка — за счёт получателя.",
-    /** Used only once freeShippingThreshold is set. */
+    /** Only when freeShippingThreshold is set. */
     freeFrom: "Бесплатно при заказе от {sum} ₸.",
   },
   consent: {
@@ -314,7 +314,7 @@ export const ru = {
     decline: "Отклонить",
     more: "Подробнее",
   },
-  /** Draft for the owners (and, if needed, a lawyer) to check before publishing. {email} comes from data/contacts.ts. */
+  /** Draft, to be checked by the owners. {email} from data/contacts.ts. */
   privacy: {
     kicker: "КОНФИДЕНЦИАЛЬНОСТЬ",
     title: "Политика конфиденциальности",

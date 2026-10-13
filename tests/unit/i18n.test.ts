@@ -60,7 +60,7 @@ describe("withContacts", () => {
 });
 
 describe("localePath", () => {
-  // Read from the Astro config, so the test follows the setting instead of restating it.
+  // From the Astro config, not hard-coded.
   const trailingSlash = astroConfig.trailingSlash ?? "ignore";
   const samples = langs.flatMap((lang) =>
     ["/", "/catalog", "/product/gum", "/product/xylitol"].map((path) => ({ lang, path })),
@@ -68,7 +68,6 @@ describe("localePath", () => {
 
   it.each(samples)("$lang: $path", ({ lang, path }) => {
     const out = localePath(lang, path).replace(/(.)\/$/, "$1");
-    // Russian lives at the site root, Kazakh under /kz.
     const prefix = lang === "kz" ? "/kz" : "";
     expect(out).toBe(path === "/" ? prefix || "/" : `${prefix}${path}`);
   });
@@ -88,7 +87,7 @@ describe("localePath", () => {
     const endsWithSlash = samples.map(({ lang, path }) => localePath(lang, path).endsWith("/"));
     if (trailingSlash === "always") expect(endsWithSlash.every(Boolean)).toBe(true);
     else if (trailingSlash === "never") expect(endsWithSlash.some(Boolean)).toBe(false);
-    // "ignore" accepts both, but mixing them would still split URLs: one format for all.
+    // "ignore": still one format for all.
     else expect(new Set(endsWithSlash).size).toBe(1);
   });
 });

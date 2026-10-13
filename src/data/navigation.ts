@@ -17,6 +17,6 @@ export interface NavItem {
 export const getNavItems = (nav: Dictionary["nav"]): NavItem[] =>
   routes.map(([route, key]) => ({ route, label: nav[key] }));
 
-/** Home only matches itself, other items also match their sub-pages. */
+/** Home matches itself only; others match sub-pages too. */
 export const isActive = (route: string, current: string) =>
   route === "/" ? current === "/" : current.startsWith(route);

@@ -1,15 +1,8 @@
 import type { PartialDictionary } from "./types";
 
-// Sources, so a native speaker knows what to check:
-// - home.lead, about.*, xyl.title/lead/teethText/howText, xyl.cards 0/2/3, the first FAQ answer and
-//   the advantage-card descriptions 01–02 come from the client's KZ texts (assets/text/kz/*.docx);
-// - age limits, laxative warning and the importer address are copied from the bilingual packaging;
-// - "Дәрілік зат болып табылмайды" (footer) is our own translation: the phrase is not on the
-//   packaging or in the declarations;
-// - lines marked TODO-перевод are new texts we wrote ourselves (FAQ about GI, delivery, …);
-// - everything else (UI labels, FAQ, calculators, advantage cards) is our own
-//   translation and still needs a review. Anything missing falls back to Russian.
-// The full list for the translator is in docs/content-audit.md, section 4.
+// Sources: home.lead, about.*, xyl texts, the first FAQ answer and cards 01–02 — client's KZ docs;
+// age limits, warnings, importer address — packaging. The rest is our translation, to review.
+// TODO-перевод — our own texts. Missing keys fall back to Russian. Full list: docs/content-audit.md §4.
 export const kz: PartialDictionary = {
   meta: {
     home: "Sunny Steppe — ксилит негізіндегі қантсыз тәттілер",
@@ -31,7 +24,7 @@ export const kz: PartialDictionary = {
     price: "Бағасы",
     priceTbd: "Бағасы — сұрау бойынша",
     order: "WhatsApp арқылы тапсырыс",
-    // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+    // TODO-перевод
     prepayNote: "Тапсырыс WhatsApp арқылы рәсімделеді. Төлем — 100% алдын ала төлем.",
     deliveryNote: "{deliveryTermsShort}",
     rotate: "Артқы жағын көрсету",
@@ -46,7 +39,7 @@ export const kz: PartialDictionary = {
     ctaLead: "Бізге жазыңыз — қолда бар өнімдер, бағалар және жөнелту шарттары туралы айтып береміз.",
     aboutMore: "Бренд туралы толығырақ",
     menu: "Мәзір",
-    // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+    // TODO-перевод
     skipToContent: "Негізгі мазмұнға өту",
   },
   nav: {
@@ -65,7 +58,7 @@ export const kz: PartialDictionary = {
     lead: "SUNNY STEPPE — ксилит негізіндегі функционалды тәттілер мен өнімдер шығаратын қазақстандық бренд. Біз тәттіні жақсы көретін, бірақ күнделікті таңдауына саналы көңіл бөлгісі келетін адамдар үшін өнімдер жасаймыз.",
     stats: [
       { v: "0 г", k: "ҚҰРАМЫНДАҒЫ ҚАНТ" },
-      // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+      // TODO-перевод
       { v: "ГИ 7", k: "КСИЛИТТІҢ ГЛИКЕМИЯЛЫҚ ИНДЕКСІ" },
       { v: "−40%", k: "КСИЛИТТІҢ КАЛОРИЯСЫ ҚАНТПЕН САЛЫСТЫРҒАНДА" },
     ],
@@ -92,7 +85,7 @@ export const kz: PartialDictionary = {
       {
         n: "04",
         t: "Түсінікті құрам",
-        // TODO-перевод: our Kazakh, not in the client's texts — check with the translator. ("вегандық (Vegan)")
+        // TODO-перевод ("вегандық (Vegan)")
         d: "Қысқа әрі адал құрам. Қантсыз, ГМО-сыз, мұзкәмпиттердің рецептурасы — вегандық (Vegan).",
       },
     ],
@@ -216,7 +209,7 @@ export const kz: PartialDictionary = {
         a: "Ксилит — табиғи қант алмастырғыш. Ол қантсыз өнімдерде, соның ішінде сағыздар мен мұзкәмпиттерде бұрыннан қолданылып келеді. Шамадан тыс тұтынған жағдайда іш жүргізетін әсер беруі мүмкін — қаптамадағы ұсынылған мөлшерді сақтаңыз.",
       },
       {
-        // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+        // TODO-перевод
         q: "Ксилиттің гликемиялық индексі қандай?",
         a: "Ксилиттің гликемиялық индексі — 7 (қаптамада көрсетілген), кәдімгі қанттікі — шамамен 65. Біз медициналық ұсыныс бермейміз — қант диабеті және басқа да жағдайларда дәрігеріңізбен кеңесіңіз.",
       },
@@ -233,7 +226,7 @@ export const kz: PartialDictionary = {
         a: "Біз Қазақстан мен Ресейдегі сатып алушылармен жұмыс істейміз. Алу шарттарын хат алмасу барысында жеке талқылаймыз.",
       },
       {
-        // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+        // TODO-перевод
         q: "Қалай жеткізесіздер?",
         a: "{deliveryCarriers}. {deliveryPickup} {deliveryTerms}",
       },
@@ -262,7 +255,7 @@ export const kz: PartialDictionary = {
     orderCard: {
       k: "РӘСІМДЕУ",
       t: "WhatsApp арқылы тапсырыс",
-      // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+      // TODO-перевод
       d: "Жоғарыда көрсетілген нөмірге жазыңыз: санын таңдаймыз, қолда барын және бағасын растаймыз, мерзімін келісеміз.",
     },
   },
@@ -284,7 +277,7 @@ export const kz: PartialDictionary = {
         d: "Қазақстандағы сатып алушылармен жұмыс істейміз. Алу шарттарын хат алмасу барысында жеке талқылаймыз.",
       },
       {
-        // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+        // TODO-перевод
         k: "ЖЕТКІЗУ",
         t: "{deliveryCarrierList}",
         d: "{deliveryPickup} {deliveryTerms}",
@@ -308,7 +301,7 @@ export const kz: PartialDictionary = {
     faqQ: "Өнімнің декларациялары және басқа құжаттары бар ма?",
     faqA: "Иә. Sunny Steppe өнімдері ЕАЭО техникалық регламенттеріне сәйкестікті міндетті растаудан өтеді — құжаттарды осы жерден ашуға болады. Сатып алу үшін толық құжаттар топтамасы қажет болса — бізге WhatsApp арқылы жазыңыз.",
   },
-  // TODO-перевод: our Kazakh, not in the client's texts — check with the translator.
+  // TODO-перевод
   delivery: {
     or: "немесе",
     and: "және",
@@ -317,7 +310,7 @@ export const kz: PartialDictionary = {
     paidByRecipientShort: "Жеткізу — алушының есебінен.",
     freeFrom: "{sum} ₸ және одан жоғары тапсырысқа жеткізу тегін.",
   },
-  // TODO-перевод: consent, privacy and the footer links are our own Kazakh — check with the translator.
+  // TODO-перевод: consent, privacy, footer links
   consent: {
     label: "Cookie және аналитика",
     text: "Келушілерге қандай беттер мен өнімдер қызықты екенін түсіну үшін Google Analytics қолданғымыз келеді. Сіздің келісіміңізсіз аналитика қосылмайды, ал сайт толық жұмыс істейді.",

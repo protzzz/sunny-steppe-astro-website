@@ -11,7 +11,7 @@ import {
   withoutLang,
 } from "./helpers";
 
-// Server-side checks: no page rendering needed, so they run once, in the desktop project.
+// Server checks: desktop project only.
 test.beforeEach(({}, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "same server responses for every viewport");
 });
@@ -57,8 +57,7 @@ test("/ is the Russian home page, /kz/ the Kazakh one", async ({ page }) => {
 });
 
 test("an unknown path answers 404 with the 404 page", async ({ page, request }) => {
-  // In the site's own URL format: with trailingSlash "always", `astro preview` and `astro dev` answer a
-  // path without the slash with their own notice page instead of ours.
+  // With the slash, or dev/preview show their own notice page.
   const missing = trailingSlash === "always" ? "/no-such-page-e2e/" : "/no-such-page-e2e";
   const res = await request.get(missing);
   expect(res.status()).toBe(404);
@@ -73,7 +72,7 @@ test("link crawl finds every built page", async ({ request }) => {
   for (const lang of langs)
     for (const p of await discoverPages(request, lang))
       crawled.add(localePath(lang, withoutLang(p)).replace(/(.)\/$/, "$1"));
-  // 404 is reached by mistake, not by a link.
+  // 404 has no links to it.
   const built = distPages().filter((p) => p !== "/404");
   expect(
     built.filter((p) => !crawled.has(p)),

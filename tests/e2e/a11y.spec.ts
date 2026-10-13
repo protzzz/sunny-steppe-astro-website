@@ -2,8 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { discoverPages, langs, settle } from "./helpers";
 
-// Every page, not only the home pages: colours and components differ from page to page.
-// Only serious and critical violations fail the run.
+// All pages; fails on serious and critical violations only.
 for (const lang of langs) {
   test(`every /${lang} page has no serious or critical accessibility violations`, async ({ page, request }) => {
     const pages = await discoverPages(request, lang);

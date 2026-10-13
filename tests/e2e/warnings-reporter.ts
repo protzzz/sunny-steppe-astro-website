@@ -1,6 +1,6 @@
 import type { Reporter, TestCase, TestResult } from "@playwright/test/reporter";
 
-/** Prints the "warning" annotations of all tests as one list at the end of the run. */
+/** Prints all "warning" annotations at the end. */
 export default class WarningsReporter implements Reporter {
   private warnings = new Set<string>();
 

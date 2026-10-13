@@ -6,21 +6,21 @@ import { getDict, langNames, langs, localePath, type Lang } from "../../src/i18n
 
 export { getDict, langs, localePath, type Lang };
 
-/** The RU/KZ switch in the header: one link to `target`, named "<language name> — <CODE>". */
+/** Header RU/KZ switch: a link to `target`. */
 export const langSwitch = (page: Page, target: Lang) =>
   page.getByRole("banner").getByRole("link", { name: `${langNames[target]} — ${target.toUpperCase()}`, exact: true });
 
 export const isDev = process.env.E2E_MODE === "dev";
-/** True when the tests run against the local production build, so dist/ can be read. */
+/** Local production build: dist/ is readable. */
 export const hasDist = !isDev && !process.env.BASE_URL;
 
-/** The site's setting, read from astro.config.mjs; Astro's default is "ignore". */
+/** From astro.config.mjs (Astro's default: "ignore"). */
 export const trailingSlash: "always" | "never" | "ignore" = astroConfig.trailingSlash ?? "ignore";
 
-/** "kz" is our URL prefix, "kk" the ISO code in <html lang>. */
+/** URL "kz" → <html lang> "kk". */
 export const htmlLang = (lang: Lang) => (lang === "kz" ? "kk" : "ru");
 
-/** Language of a URL path: Kazakh under /kz/, Russian everywhere else (it has no prefix). */
+/** Language of a path: /kz/… is Kazakh, the rest Russian. */
 export const langOfPath = (pathname: string): Lang => (/^\/kz(\/|$)/.test(pathname) ? "kz" : "ru");
 
 /** "/kz/product/gum/" → "/product/gum", "/product/gum/" → "/product/gum", "/kz/" → "/". */
@@ -33,11 +33,7 @@ export const isPageLink = (href: string) =>
 const hrefPattern = /<a\s[^>]*href="([^"]+)"/g;
 const crawls = new Map<Lang, Promise<string[]>>();
 
-/**
- * Every page of one language, found by following <a href> from the language's home page.
- * Works the same on `astro dev` and on the build, and only finds pages a visitor can reach.
- * Paths are returned as the site links them (that format is checked separately).
- */
+/** All pages of a language, found by following links from its home page (dev and build). */
 export const discoverPages = (request: APIRequestContext, lang: Lang) => {
   if (!crawls.has(lang)) {
     crawls.set(
@@ -51,7 +47,7 @@ export const discoverPages = (request: APIRequestContext, lang: Lang) => {
           if (seen.has(key)) continue;
           seen.set(key, link);
           const res = await request.get(link);
-          if (!res.ok()) continue; // reported by the page checks
+          if (!res.ok()) continue; // pages.spec reports it
           for (const [, href] of (await res.text()).matchAll(hrefPattern)) {
             const clean = href.split("#")[0].split("?")[0];
             if (isPageLink(clean) && langOfPath(clean) === lang && !seen.has(withoutLang(clean))) queue.push(clean);
@@ -64,7 +60,7 @@ export const discoverPages = (request: APIRequestContext, lang: Lang) => {
   return crawls.get(lang)!;
 };
 
-/** Built pages, as URL paths: dist/kz/about/index.html → "/kz/about", dist/index.html → "/". */
+/** Built pages as paths: dist/kz/about/index.html → "/kz/about". */
 export const distPages = () => {
   const dist = path.resolve("dist");
   const walk = (dir: string): string[] =>
@@ -85,7 +81,7 @@ export const distPages = () => {
     .map((p) => p.replace(/\/$/, "") || "/");
 };
 
-/** Does this internal link match the trailingSlash setting? */
+/** Link matches trailingSlash? */
 export const matchesTrailingSlash = (href: string) => {
   const p = href.split("#")[0].split("?")[0];
   if (p === "/") return true;
@@ -94,19 +90,19 @@ export const matchesTrailingSlash = (href: string) => {
   return true;
 };
 
-/** Non-fatal findings, printed together at the end of the run by warnings-reporter.ts. */
+/** Non-fatal finding, listed at the end by warnings-reporter.ts. */
 export const warn = (testInfo: TestInfo, message: string) =>
   testInfo.annotations.push({ type: "warning", description: message });
 
 export const WHATSAPP = /^https:\/\/wa\.me\/\d+$/;
 
-/** Waits until every island has hydrated and every image has had the chance to load. */
+/** Waits for all islands to hydrate and all images to load. */
 export const settle = async (page: Page) => {
-  // client:visible islands only hydrate on screen, and lazy images only load near it.
+  // client:visible islands and lazy images need to be on screen.
   for (const island of await page.locator("astro-island").all()) await island.scrollIntoViewIfNeeded();
-  // Astro removes `ssr` once an island has rendered on the client; a crash leaves it in place.
+  // `ssr` is removed after hydration; a crash leaves it.
   await expect(page.locator("astro-island[ssr]"), "islands that did not hydrate").toHaveCount(0);
-  // Images hidden on purpose (the back of the pack) stay lazy forever, so load them now.
+  // Hidden images (back of the pack) would stay lazy.
   await page
     .locator('img[loading="lazy"]')
     .evaluateAll((imgs) => imgs.forEach((i) => ((i as HTMLImageElement).loading = "eager")));

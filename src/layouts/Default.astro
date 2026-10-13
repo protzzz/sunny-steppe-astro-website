@@ -16,37 +16,33 @@ interface Props {
   title: string;
   description?: string;
   lang: Lang;
-  /** Picture for og:image, converted to JPEG at build time. Defaults to the brand's hero product shot. */
+  /** og:image source, converted to JPEG. */
   image?: ImageMetadata;
-  /** For pages with no real URL of their own (404), e.g. so hreflang doesn't point at it. */
+  /** No canonical/hreflang (404). */
   noindex?: boolean;
-  /** Product id of a product page: sent with the analytics events of links on it. */
+  /** Product id for analytics events. */
   product?: string;
 }
 
 const { title, lang, image = lollipopFront, noindex = false, product } = Astro.props;
 const t = getDict(lang);
 const description = Astro.props.description ?? t.meta.description;
-// Route without the language prefix (Russian has none, Kazakh has /kz), so the RU/KZ switch keeps the page.
-// A noindex page (404) has no real counterpart in the other locale, so its
-// language switcher and canonical/og URLs fall back to the home route instead.
+// Route without /kz, for the RU/KZ switch. 404 falls back to the home page.
 const route = noindex ? '/' : Astro.url.pathname.replace(/^\/kz(?=\/|$)/, '').replace(/\/$/, '') || '/';
 const navItems = getNavItems(t.nav);
-// "kk" is the ISO code for Kazakh; "kz" is only used in our URLs.
+// ISO code "kk"; "kz" is only our URL prefix.
 const htmlLang = lang === 'kz' ? 'kk' : 'ru';
 
 const canonicalURL = new URL(localePath(lang, route), Astro.site);
 const ruAlternateURL = new URL(localePath('ru', route), Astro.site);
 const kzAlternateURL = new URL(localePath('kz', route), Astro.site);
-// Share previews: messengers and social networks handle WebP unevenly, so the pack shot becomes a JPEG,
-// on the site's cream instead of its transparent background.
+// JPEG for share previews (WebP support is patchy), on the site's cream background.
 const ogImage = await getImage({ src: image, format: 'jpg', background: '#fbf7ef', quality: 82 });
 const imageURL = new URL(ogImage.src, Astro.site);
 const ogLocale = lang === 'kz' ? 'kk_KZ' : 'ru_RU';
-// The header is a React island, so it gets a ready 2x-size file instead of <Image>.
+// React island: pass a ready 2x image instead of <Image>.
 const headerLogo = await getImage({ src: logo, width: 68, format: 'webp' });
-// Google Analytics: only in a production build with PUBLIC_GA_ID. Even then nothing loads before
-// consent, and gtag.js is only requested on the real domain (see lib/analytics.ts).
+// GA4: production build with PUBLIC_GA_ID only; loads after consent (lib/analytics.ts).
 const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
 ---
 
@@ -57,8 +53,7 @@ const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <!-- Preload only the Cyrillic files the first screen needs; the rest load on demand.
-         Both fonts are variable (one file for all weights), registered under weight 400. -->
+    <!-- Preload Cyrillic only. Variable fonts: one file, registered as weight 400. -->
     <Font cssVariable="--font-playfair" preload={[{ subset: 'cyrillic', weight: 400, style: 'normal' }]} />
     <Font cssVariable="--font-manrope" preload={[{ subset: 'cyrillic', weight: 400 }]} />
     <title>{title}</title>
@@ -93,7 +88,7 @@ const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
     <meta name="twitter:image" content={imageURL} />
   </head>
   <body>
-    <!-- First stop for keyboard users: jump past the header straight to the page content. -->
+    <!-- Skip link for keyboard users. -->
     <a
       href="#main"
       class="sr-only z-[100] rounded-full bg-navy px-5 py-3 text-[14px] font-semibold text-cream hover:text-cream focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
@@ -101,7 +96,7 @@ const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
       {t.ui.skipToContent}
     </a>
     <div class="flex min-h-screen flex-col bg-cream">
-      <!-- Server-rendered links work without JS; only the burger needs hydration. -->
+      <!-- Links work without JS; only the burger needs hydration. -->
       <Header
         client:idle
         logo={headerLogo.src}

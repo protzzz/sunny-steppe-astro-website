@@ -1,21 +1,21 @@
 interface Props {
   title: string;
-  /** Small caps line above the title, e.g. the product name. */
+  /** Line above the title, e.g. product name. */
   eyebrow?: string;
-  /** Lines under the title: registration number, regulations, validity. */
+  /** Lines under the title: number, regulations, validity. */
   meta: string[];
   href: string;
   openLabel: string;
   downloadLabel: string;
-  /** "tinted" sits on the sand background inside the FAQ answer. */
+  /** "tinted": inside the FAQ answer. */
   variant?: 'paper' | 'tinted';
-  /** Product id, sent with the pdf_download analytics event. */
+  /** Product id for pdf_download. */
   product?: string;
 }
 
 const pill = 'inline-flex items-center rounded-full px-[18px] py-2.5 text-[13px] font-semibold whitespace-nowrap';
 
-/** One downloadable document. Static markup, so it also renders in Astro without hydration. */
+/** A downloadable document. Static: works without hydration. */
 export const DocumentRow = ({
   title,
   eyebrow,

@@ -4,13 +4,13 @@ import { isActive, type NavItem } from '@data/navigation';
 import { langNames, langs, localePath, type Lang } from '@i18n/index';
 
 interface Props {
-  /** Logo mark URL, resized at build time by the layout. */
+  /** Logo URL, resized by the layout. */
   logo: string;
   lang: Lang;
-  /** Current route without the language prefix, e.g. "/catalog". */
+  /** Route without the language prefix, e.g. "/catalog". */
   route: string;
   items: NavItem[];
-  /** Links only the burger menu has room for (e.g. Documents), after the main items. */
+  /** Extra links for the burger menu only. */
   menuExtraItems?: NavItem[];
   writeLabel: string;
   menuLabel: string;
@@ -18,15 +18,11 @@ interface Props {
 
 const MENU_ID = 'mobile-menu';
 
-/**
- * RU/KZ switch: the whole pill is one link to the other language, so a click anywhere on it — even on
- * the current language — switches. The light thumb slides to the new side while the next page loads.
- */
+/** RU/KZ switch: the whole pill links to the other language; the thumb slides on click. */
 const LangSwitch = ({ lang, route }: { lang: Lang; route: string }) => {
   const target: Lang = lang === 'ru' ? 'kz' : 'ru';
   const [switching, setSwitching] = useState(false);
-  // Coming back with the browser's Back button can restore this page from memory with the thumb
-  // already moved; put it back.
+  // Reset the thumb when the page is restored by Back (bfcache).
   useEffect(() => {
     const onShow = (e: PageTransitionEvent) => e.persisted && setSwitching(false);
     window.addEventListener('pageshow', onShow);
@@ -67,7 +63,7 @@ export const Header = ({ logo, lang, route, items, menuExtraItems = [], writeLab
   const [open, setOpen] = useState(false);
   const burger = useRef<HTMLButtonElement>(null);
 
-  // Escape closes the menu and puts the focus back on the burger, where the visitor left it.
+  // Escape closes the menu and returns focus to the burger.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -81,7 +77,7 @@ export const Header = ({ logo, lang, route, items, menuExtraItems = [], writeLab
 
   return (
     <header className="sticky top-0 z-50 border-b border-navy/9 bg-cream/88 backdrop-blur-[14px]">
-      {/* Must fit 320px: below `nav` the empty nav takes no gap, below 360px only the logo mark is shown. */}
+      {/* Fits 320px: below 360px only the logo mark is shown. */}
       <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-5 py-3.5 sm:gap-[18px]">
         <a
           href={localePath(lang)}
@@ -157,7 +153,7 @@ export const Header = ({ logo, lang, route, items, menuExtraItems = [], writeLab
               </a>
             );
           })}
-          {/* On phones the header has no room for the WhatsApp button, and it is the way to order. */}
+          {/* WhatsApp in the menu: the header has no room for it on phones. */}
           <a
             href={contacts.whatsappHref}
             target="_blank"

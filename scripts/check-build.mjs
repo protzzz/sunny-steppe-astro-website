@@ -1,33 +1,25 @@
-// Walks the built site and fails the build if:
-// - any internal href/src/srcset (or og:image) points at a path that doesn't exist in dist/ —
-//   a cheap guard against typos in localePath()/product ids and missing images;
-// - a /kz page still shows Russian text, i.e. a string identical to the same Russian page that
-//   contains a word the Kazakh translation doesn't use (a key missing from kz.ts falls back to Russian).
-// - a page loads Google Analytics from its HTML: gtag.js may only be added by the consent script
-//   after the visitor accepts (basic Consent Mode), never by a <script src> in the page itself.
-// - an absolute link of the site (canonical, hreflang, og:url, og:image, sitemap, robots.txt, the GA4
-//   domain) points anywhere but PUBLIC_SITE_URL — e.g. a build made with another value than the hosting's.
-// It also warns (without failing) about images heavier than MAX_IMAGE_KB, and prints the site address
-// and the GA4 status, so the hosting's build log shows what went live.
-// No browser needed; what needs one (console errors, layout, clicks) is in tests/e2e.
+// Checks dist/ after the build. Fails on:
+// - internal links, images or og:image pointing to missing files;
+// - Russian text left on /kz pages;
+// - gtag.js in page HTML (it may only load after consent);
+// - absolute URLs not on PUBLIC_SITE_URL.
+// Warns about images over MAX_IMAGE_KB; prints the site URL and GA4 status.
 import { readdirSync, readFileSync, statSync, existsSync } from "fs";
 import path from "path";
 import { loadEnv } from "vite";
 
 const DIST = path.resolve("dist");
 
-// The same value astro.config.mjs used: environment variables (hosting, CI) first, then .env.
+// Same value as astro.config.mjs: env variables first, then .env.
 const SITE = new URL(loadEnv(process.env.NODE_ENV ?? "production", process.cwd(), "").PUBLIC_SITE_URL);
 const SITE_PREFIX = `${SITE.origin}/`;
 
-// Words that are valid on a /kz page even when spelled like Russian. The main source is the
-// client's Kazakh translation (scripts/kz-words.json, built by extract-kz-words.mjs): if the
-// translator wrote "ксилит" or "бренд", that is the intended Kazakh. The short lists below
-// cover what the translation files don't contain — keep them small and say where each came from.
+// Words allowed on /kz pages although they look Russian. Main list: kz-words.json (from the
+// client's translation, see extract-kz-words.mjs). Keep the extra lists short.
 const kzWords = JSON.parse(readFileSync(new URL("./kz-words.json", import.meta.url), "utf-8")).words;
-const FROM_PACKAGING = ["артикул", "ккал", "г"]; // printed this way on the KZ side of the labels
-const NOT_IN_TRANSLATION = ["каталог", "телефон", "география", "навигация", "философия", "ги"]; // our UI labels — ask the translator
-const DECLARATION_NUMBER = ["еаэс", "д", "ра", "в"]; // e.g. "ЕАЭС N RU Д-CN.РА06.В.20103/26", must stay verbatim
+const FROM_PACKAGING = ["артикул", "ккал", "г"]; // as on the KZ side of the packaging
+const NOT_IN_TRANSLATION = ["каталог", "телефон", "география", "навигация", "философия", "ги"]; // our UI labels, to confirm with the translator
+const DECLARATION_NUMBER = ["еаэс", "д", "ра", "в"]; // parts of declaration numbers
 const SHARED_WORDS = new Set([...kzWords, ...FROM_PACKAGING, ...NOT_IN_TRANSLATION, ...DECLARATION_NUMBER]);
 
 const MAX_IMAGE_KB = 400;
@@ -74,12 +66,12 @@ for (const file of htmlFiles) {
     if (!resolveInternalPath(link)) errors.push(`Broken internal link: ${link}  (found in ${where})`);
   }
 
-  // og:image / twitter:image are absolute URLs, so check their path part too.
+  // og:image and twitter:image are absolute: check their path.
   for (const match of html.matchAll(/<meta[^>]+(?:og|twitter):image"[^>]+content="https?:\/\/[^/"]+(\/[^"]*)"/g)) {
     if (!resolveInternalPath(match[1])) errors.push(`Broken share image: ${match[1]}  (found in ${where})`);
   }
 
-  // Absolute addresses of the site itself must all use PUBLIC_SITE_URL.
+  // Own absolute URLs must use PUBLIC_SITE_URL.
   const ownUrls = [
     ...html.matchAll(/<link[^>]+rel="(?:canonical|alternate)"[^>]+href="([^"]+)"/g),
     ...html.matchAll(/<meta[^>]+(?:og:url|og:image|twitter:image)"[^>]+content="([^"]+)"/g),
@@ -95,7 +87,7 @@ for (const file of htmlFiles) {
   }
 
   if (where.startsWith(`kz${path.sep}`)) {
-    // Russian pages live at the root: dist/kz/catalog/index.html ↔ dist/catalog/index.html.
+    // dist/kz/catalog/ ↔ dist/catalog/
     const ruFile = path.join(DIST, path.relative(path.join(DIST, "kz"), file));
     if (!existsSync(ruFile)) continue;
     const ruTexts = new Set(cyrillicTexts(readFileSync(ruFile, "utf-8")));
@@ -116,7 +108,7 @@ if (heavyImages.length > 0) {
   for (const img of heavyImages) console.warn(`  ${img.kb} KB  ${img.file}`);
 }
 
-// sitemap and robots.txt are not HTML, check them separately.
+// sitemap and robots.txt
 for (const file of walk(DIST).filter((f) => /sitemap.*\.xml$/.test(f))) {
   for (const [, url] of readFileSync(file, "utf-8").matchAll(/<loc>([^<]+)<\/loc>/g)) {
     if (!url.startsWith(SITE_PREFIX)) errors.push(`Not on ${SITE.origin}: ${url}  (in ${path.relative(DIST, file)})`);

@@ -1,6 +1,4 @@
-// Google Analytics 4 with basic Consent Mode: nothing is loaded and nothing is sent to Google
-// until the visitor accepts. This module has no DOM side effects, so Vitest tests it directly;
-// the browser part lives in components/ConsentBanner.astro.
+// GA4 logic without DOM (tested by Vitest). Browser part: components/ConsentBanner.astro.
 
 export type AnalyticsEventName = "whatsapp_click" | "pdf_download" | "instagram_click";
 
@@ -14,10 +12,7 @@ export const GA_ID_PATTERN = /^G-[A-Z0-9]{4,}$/;
 
 export const isValidGaId = (id: string | undefined): id is string => !!id && GA_ID_PATTERN.test(id);
 
-/**
- * Reads PUBLIC_GA_ID for the layout. Analytics is only part of a production build with an ID;
- * a malformed ID stops the build instead of silently tracking nothing.
- */
+/** GA ID for a production build, otherwise undefined. A malformed ID fails the build. */
 export const resolveGaId = (raw: string | undefined, isProduction: boolean): string | undefined => {
   const id = raw?.trim();
   if (!id || !isProduction) return undefined;
@@ -25,17 +20,13 @@ export const resolveGaId = (raw: string | undefined, isProduction: boolean): str
   return id;
 };
 
-/**
- * gtag.js is only requested on the real domain (the host of PUBLIC_SITE_URL). On localhost
- * (`astro preview`, E2E tests) and on hosting preview URLs the consent banner and the event
- * queue still work, so they can be tested, but no request leaves for Google.
- */
+/** gtag.js loads only on the PUBLIC_SITE_URL host, never on localhost or preview URLs. */
 export const isTrackedHost = (hostname: string, siteUrl: string) => {
   const site = new URL(siteUrl).hostname.replace(/^www\./, "");
   return hostname.replace(/^www\./, "") === site;
 };
 
-/** Which tracked event a link click is, or null. Never prevents the click itself. */
+/** Tracked event for a link, or null. */
 export const classifyLink = (href: string, base: string): LinkEvent | null => {
   let url: URL;
   try {
@@ -63,15 +54,15 @@ export const langFromPath = (pathname: string) => (pathname.split("/")[1] === "k
 
 export type ConsentValue = "granted" | "denied";
 
-/** localStorage key; the value is JSON { value, at } with `at` in ms since epoch. */
+/** localStorage key; value: JSON { value, at } (at = ms since epoch). */
 export const CONSENT_KEY = "ss-analytics-consent";
 
-/** The choice is asked again after this many days, as for cookies. */
+/** Ask again after this many days. */
 export const CONSENT_MAX_AGE_DAYS = 180;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** The stored choice, or null when there is none, it is unreadable or it has expired. */
+/** Stored choice, or null if missing, invalid or expired. */
 export const parseConsent = (raw: string | null, now: number): ConsentValue | null => {
   if (!raw) return null;
   try {
@@ -86,10 +77,7 @@ export const parseConsent = (raw: string | null, now: number): ConsentValue | nu
 
 export const serializeConsent = (value: ConsentValue, now: number) => JSON.stringify({ value, at: now });
 
-/**
- * Consent Mode v2 state for gtag. There are no ads on the site, so the advertising signals stay
- * denied in every case; only analytics_storage follows the visitor's choice.
- */
+/** Consent Mode v2 state. Ad signals are always denied (no ads on the site). */
 export const consentState = (analytics: ConsentValue) => ({
   ad_storage: "denied",
   ad_user_data: "denied",
@@ -97,5 +85,5 @@ export const consentState = (analytics: ConsentValue) => ({
   analytics_storage: analytics,
 });
 
-/** GA4 cookies to remove when consent is withdrawn: _ga and _ga_<stream>. */
+/** GA4 cookies removed on withdrawal: _ga, _ga_<stream>. */
 export const isGaCookie = (name: string, gaId: string) => name === "_ga" || name === `_ga_${gaId.replace(/^G-/, "")}`;

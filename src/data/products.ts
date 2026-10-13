@@ -13,10 +13,10 @@ export interface Product {
   name: string;
   short: string;
   lead: string;
-  /** Pack shots, resized and converted to AVIF/WebP at build time. */
+  /** Pack shots (AVIF/WebP at build time). */
   img: ImageMetadata;
   back: ImageMetadata;
-  /** Background behind the pack on cards and the product hero. */
+  /** Background behind the pack. */
   tint: string;
   badges: string[];
   bullets: { t: string; d: string }[];
@@ -26,7 +26,7 @@ export interface Product {
   caution: string;
 }
 
-/** Fields a locale can override; images, colours and ids are shared. */
+/** Translatable fields; images, colours and ids are shared. */
 type ProductText = Omit<Product, "id" | "img" | "back" | "tint">;
 
 export const products: Product[] = [
@@ -148,10 +148,8 @@ export const products: Product[] = [
   },
 ];
 
-// Kazakh copy. Descriptions and composition come from the client's KZ texts
-// (assets/text/kz/*.docx); cautions, storage, nutrition labels and usage for gum
-// are taken from the bilingual back labels. Kickers, names, badges and bullet
-// titles are our own translation — have a native speaker check them.
+// Kazakh: descriptions and composition — client's KZ docs; cautions and labels — packaging.
+// Kickers, names, badges, bullet titles — our translation, to review.
 const kz: Record<Product["id"], Partial<ProductText>> = {
   xylitol: {
     kicker: "ҮЙ ҮШІН",
@@ -259,6 +257,6 @@ const kz: Record<Product["id"], Partial<ProductText>> = {
   },
 };
 
-/** Products in the given locale; missing Kazakh fields fall back to Russian. */
+/** Products in a language; missing Kazakh fields fall back to Russian. */
 export const getProducts = (lang: Lang): Product[] =>
   lang === "kz" ? products.map((p) => ({ ...p, ...kz[p.id] })) : products;

@@ -3,13 +3,13 @@ import type { Dictionary } from '@i18n/index';
 
 interface Props {
   cards: Dictionary['order']['cards'];
-  /** "plain" on the home page, "tinted" on the contacts page. */
+  /** "plain": home page, "tinted": contacts page. */
   variant?: 'plain' | 'tinted';
 }
 
 const { cards, variant = 'plain' } = Astro.props;
 const tinted = variant === 'tinted';
-// Four cards: one column on phones, 2×2 on tablets, one row on desktop (auto-fit left a 3 + 1 orphan).
+// 4 cards: 1 column → 2×2 → 1 row.
 ---
 
 <div class:list={['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4', tinted ? 'gap-4' : 'gap-[18px]']}>
@@ -27,8 +27,7 @@ const tinted = variant === 'tinted';
         <h3
           class:list={[
             'm-0 font-heading font-semibold text-navy',
-            // Contacts: the page is narrower than the home page, so on desktop the titles shrink a little to
-            // keep "Jet Logistics / Казпочта" on one line, as on the home page.
+            // Contacts page is narrower: smaller titles keep "Jet Logistics / Казпочта" on one line.
             tinted
               ? 'mt-[11px] text-[19px] leading-[1.24] lg:text-[clamp(16px,1.6vw,18px)]'
               : 'mt-3 text-[20px] leading-[1.24]',

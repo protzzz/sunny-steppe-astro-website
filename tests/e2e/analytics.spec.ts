@@ -3,9 +3,8 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { CONSENT_KEY } from "../../src/lib/analytics";
 import { getDict, isDev, localePath } from "./helpers";
 
-// Google Analytics with basic Consent Mode. The build carries a fake ID (playwright.config.ts).
-// Nothing here reaches Google: every request to it is answered locally and recorded, so the tests
-// can prove when gtag.js would load. gtag.js itself never runs; the events are read from dataLayer.
+// GA4 consent tests. Build has a fake ID; requests to Google are stubbed and recorded,
+// events are read from dataLayer.
 test.skip(isDev, "`astro dev` builds without analytics");
 test.skip(!!process.env.BASE_URL, "tests the local build: it needs the fake GA ID and the production-domain stand-in");
 
@@ -15,7 +14,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 const t = getDict("ru");
 const GOOGLE = /googletagmanager\.com|google-analytics\.com|analytics\.google\.com|doubleclick\.net/;
 
-/** Answers every request to Google locally and returns the list of requested URLs. */
+/** Stubs Google requests; returns the requested URLs. */
 const recordGoogle = async (context: BrowserContext) => {
   const urls: string[] = [];
   await context.route(GOOGLE, (route) => {
@@ -25,22 +24,19 @@ const recordGoogle = async (context: BrowserContext) => {
   return urls;
 };
 
-/** WhatsApp and Instagram open instantly and offline. */
+/** Stubs WhatsApp and Instagram. */
 const stubExternalSites = (context: BrowserContext) =>
   context.route(/wa\.me|instagram\.com/, (route) =>
     route.fulfill({ status: 200, contentType: "text/html", body: "<title>stub</title>" }),
   );
 
-/**
- * Serves the local build under the real domain (PUBLIC_SITE_URL), the only host where gtag.js may load.
- * Returns that origin; pages are then opened with `${origin}/…`.
- */
+/** Serves the local build under PUBLIC_SITE_URL (where gtag.js may load); returns that origin. */
 const asProductionDomain = async (context: BrowserContext, page: Page, baseURL: string) => {
   await page.goto(localePath("ru"));
   const site = new URL((await page.locator("#consent-banner").getAttribute("data-site-url"))!);
   await context.route(`${site.origin}/**`, async (route) => {
     const url = new URL(route.request().url());
-    // A request can be cancelled midway when the test navigates on; that is not a failure.
+    // Requests cancelled by navigation are fine.
     try {
       const response = await route.fetch({ url: new URL(url.pathname + url.search, baseURL).href });
       await route.fulfill({ response });
@@ -96,7 +92,7 @@ test("before consent nothing is loaded or sent, and the links still open", async
     /instagram\.com/,
   );
   await page.goto(`${origin}/documents/`);
-  // Headless Chromium downloads a PDF instead of showing it, so check that the PDF was requested.
+  // Headless Chromium downloads PDFs: check the request instead.
   await Promise.all([
     context.waitForEvent("request", (req) => /\.pdf$/.test(req.url())),
     page.getByRole("link", { name: t.docs.open }).first().click(),
@@ -133,7 +129,7 @@ test("accepting on the real domain loads GA and sends the three events", async (
   ]);
   expect(setup).toContainEqual(["config", gaId]);
 
-  // Header WhatsApp (desktop): the click is reported and the chat still opens.
+  // Header WhatsApp
   const [chat] = await Promise.all([
     context.waitForEvent("page"),
     page.getByRole("banner").getByRole("link", { name: t.ui.write }).click(),
@@ -156,7 +152,7 @@ test("accepting on the real domain loads GA and sends the three events", async (
     .poll(() => events(page))
     .toContainEqual(expect.objectContaining({ name: "instagram_click", link_location: "footer" }));
 
-  // Product page: the stored consent loads GA straight away; events carry the product.
+  // Product page: GA loads at once, events carry the product.
   await page.goto(`${origin}/product/gum/`);
   await expect.poll(() => gtagLoads(google).length).toBe(2);
   const [order] = await Promise.all([
@@ -186,7 +182,7 @@ test("accepting on the real domain loads GA and sends the three events", async (
     expect.objectContaining({ name: "pdf_download", product: "gum", link_type: "download" }),
   );
 
-  // Kazakh pages report their language.
+  // Kazakh page → lang: kz
   await page.goto(`${origin}/kz/`);
   const [kzChat] = await Promise.all([
     context.waitForEvent("page"),
@@ -223,13 +219,13 @@ test("withdrawing consent stops tracking and removes the GA cookies", async ({ p
   const gaId = (await page.locator("#consent-banner").getAttribute("data-ga-id"))!;
   await banner(page).getByRole("button", { name: t.consent.accept }).click();
   await expect.poll(() => gtagLoads(google).length).toBe(1);
-  // What gtag.js would have set (it is stubbed here).
+  // Cookies gtag.js would set.
   await page.evaluate((id) => {
     document.cookie = "_ga=GA1.1.123.456; path=/";
     document.cookie = `_ga_${id.replace(/^G-/, "")}=GS1.1.789; path=/`;
   }, gaId);
 
-  // "Cookie settings" in the footer reopens the banner with the focus on its first button.
+  // Footer "Cookie settings" reopens the banner.
   await page.getByRole("button", { name: t.footer.cookieSettings }).click();
   await expect(banner(page)).toBeVisible();
   await expect(banner(page).getByRole("button", { name: t.consent.accept })).toBeFocused();
@@ -250,7 +246,7 @@ test("withdrawing consent stops tracking and removes the GA cookies", async ({ p
     "GA cookies after withdrawal",
   ).toEqual([]);
 
-  // Clicks are no longer reported, and the next page does not load GA.
+  // No more events, no GA on the next page.
   const before = (await events(page)).length;
   const [chat] = await Promise.all([
     context.waitForEvent("page"),

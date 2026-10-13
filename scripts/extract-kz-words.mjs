@@ -1,8 +1,5 @@
-// Builds scripts/kz-words.json — every Cyrillic word used in the client's Kazakh texts.
-// check-build.mjs treats these as valid Kazakh even when they are spelled like Russian
-// (ксилит, таурин, бренд…): if the translator wrote it that way, it is meant to be that way.
-// Run it again whenever the translation files change:
-//   node scripts/extract-kz-words.mjs [folder with the KZ .docx files]
+// Builds kz-words.json from the client's KZ .docx files (allowed words for check-build).
+// Rerun after the translation changes: node scripts/extract-kz-words.mjs [docx folder]
 import { execFileSync } from "child_process";
 import { readdirSync, writeFileSync } from "fs";
 import path from "path";
@@ -13,9 +10,9 @@ if (files.length === 0) throw new Error(`No .docx files in ${dir}`);
 
 const words = new Set();
 for (const file of files) {
-  // A .docx is a zip; the text lives in word/document.xml.
+  // Text of a .docx: word/document.xml.
   const xml = execFileSync("unzip", ["-p", path.join(dir, file), "word/document.xml"], { encoding: "utf-8" });
-  // Word may split one word across several runs, so only paragraph/tab/break tags become spaces.
+  // Only paragraph/tab/break tags become spaces (Word splits words across runs).
   const text = xml.replace(/<\/w:p>|<w:tab\/>|<w:br\/>/g, " ").replace(/<[^>]+>/g, "");
   for (const w of text.toLowerCase().match(/[а-яёәғқңөұүһі]+/g) ?? []) words.add(w);
 }

@@ -10,7 +10,7 @@ export const getStaticPaths = langPaths;
 const lang = langFromParam(Astro.params.lang);
 const t = getDict(lang);
 
-// The documents question goes right after "what is xylitol and is it safe".
+// Documents question goes second.
 const docsItem = {
   q: t.docs.faqQ,
   a: t.docs.faqA,

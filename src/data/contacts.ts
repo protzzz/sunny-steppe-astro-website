@@ -8,21 +8,18 @@ export const contacts = {
   emailHref: "mailto:sunnysteppe@mail.ru",
 };
 
-/**
- * Delivery terms confirmed by the owners. The sentences around these values live in the
- * dictionaries (`delivery.*`) and are assembled in i18n/index.ts.
- */
+/** Delivery terms (confirmed by the owners). Sentences: `delivery.*` in the dictionaries. */
 export const delivery = {
   carriers: [
     { ru: "Jet Logistics", kz: "Jet Logistics" },
     { ru: "Казпочта", kz: "Қазпошта" },
   ],
-  /** Pickup cities, already in the form the sentence needs: after "в" in Russian, with the locative ending in Kazakh. */
+  /** Pickup cities in sentence form: after "в" (ru), locative (kz). */
   pickupCities: [
     { ru: "Алматы", kz: "Алматыда" },
     { ru: "Караганде", kz: "Қарағандыда" },
   ],
   paidByRecipient: true,
-  /** Order total in tenge from which delivery is free. Not offered yet, so nothing is shown while it is undefined. */
+  /** Free delivery from this total (₸). undefined: not shown. */
   freeShippingThreshold: undefined as number | undefined,
 };

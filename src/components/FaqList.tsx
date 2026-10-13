@@ -14,8 +14,7 @@ interface Props {
   downloadLabel: string;
 }
 
-// The answer should slide at a similar speed whatever its height: a fixed duration made the long
-// documents answer jump open. Time grows with height, capped so tall answers don't feel sluggish.
+// Animation time grows with the answer's height, capped.
 const durationFor = (height: number) => Math.round(Math.min(1100, Math.max(320, 200 + height * 1.5)));
 
 export const FaqList = ({ items, openLabel, downloadLabel }: Props) => {
@@ -24,7 +23,7 @@ export const FaqList = ({ items, openLabel, downloadLabel }: Props) => {
   const contents = useRef<(HTMLDivElement | null)[]>([]);
 
   const toggle = (i: number) => {
-    // The answer stays in the DOM while collapsed, so its natural height can be measured.
+    // Collapsed answers stay in the DOM, so their height is measurable.
     setDurations((d) => ({ ...d, [i]: durationFor(contents.current[i]?.offsetHeight ?? 0) }));
     setOpen((s) => ({ ...s, [i]: !s[i] }));
   };
@@ -35,7 +34,7 @@ export const FaqList = ({ items, openLabel, downloadLabel }: Props) => {
         const isOpen = !!open[i];
         const id = `faq-${i}`;
         const ms = durations[i] ?? 380;
-        // Height follows the full duration; the text fades in quickly so long answers don't sit pale.
+        // Height: full duration; text fades in faster.
         const slide = { transitionDuration: `${ms}ms` };
         const fade = { transitionDuration: `${Math.min(ms, 420)}ms` };
         return (
@@ -62,7 +61,7 @@ export const FaqList = ({ items, openLabel, downloadLabel }: Props) => {
                 +
               </span>
             </button>
-            {/* Animating grid rows from 0fr to 1fr lets the answer slide to its natural height. */}
+            {/* grid-rows 0fr → 1fr animates to the natural height. */}
             <div
               id={id}
               inert={!isOpen}

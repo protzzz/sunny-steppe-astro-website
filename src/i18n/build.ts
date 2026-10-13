@@ -1,13 +1,12 @@
 import { contacts as siteContacts, delivery as siteDelivery } from "@data/contacts";
 import type { Dictionary, Lang } from "./types";
 
-// Builds the final dictionaries: Kazakh falls back to Russian, placeholders get values from
-// data/contacts.ts. Kept apart from index.ts so the unit tests can call it with other data.
+// Builds the dictionaries: Kazakh falls back to Russian, placeholders filled from data/contacts.ts.
 
 type Contacts = typeof siteContacts;
 type Delivery = typeof siteDelivery;
 
-// Arrays are replaced as a whole, objects are merged key by key.
+// Arrays are replaced, objects merged by key.
 export const merge = <T>(base: T, over: unknown): T => {
   if (over === undefined) return base;
   if (Array.isArray(base) || typeof base !== "object" || base === null) return over as T;
@@ -22,7 +21,7 @@ export const merge = <T>(base: T, over: unknown): T => {
 export const joinList = (items: string[], conj: string) =>
   items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} ${conj} ${items.at(-1)}`;
 
-/** Delivery sentences built from data/contacts.ts and the locale's `delivery` templates. */
+/** Delivery sentences from data/contacts.ts and `delivery` templates. */
 const deliveryTexts = (dict: Dictionary, lang: Lang, delivery: Delivery) => {
   const t = dict.delivery;
   const free = delivery.freeShippingThreshold;
@@ -39,15 +38,14 @@ const deliveryTexts = (dict: Dictionary, lang: Lang, delivery: Delivery) => {
   };
 };
 
-// Texts write the phone as {phone} and delivery terms as {delivery…}, so the values live only in data/contacts.ts.
+// Fills {phone} and {delivery…} from data/contacts.ts.
 export const withContacts = (
   dict: Dictionary,
   lang: Lang,
   contacts: Contacts = siteContacts,
   delivery: Delivery = siteDelivery,
 ): Dictionary => {
-  // A missing phone would print "undefined" on every page: stop the build instead. Delivery texts
-  // may legitimately be empty (e.g. no terms to state), so they are not checked.
+  // No phone → fail the build instead of printing "undefined". Delivery texts may be empty.
   if (JSON.stringify(dict).includes("{phone}") && !contacts.phone?.trim()) {
     throw new Error(`i18n: no value for {phone} (${lang}) — fill it in src/data/contacts.ts`);
   }

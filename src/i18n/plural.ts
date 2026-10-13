@@ -1,5 +1,4 @@
-// Picks the form for "one / few / many" (Russian rules); fractions take "few".
-// Kazakh doesn't inflect nouns after numbers, so its dictionary repeats one word.
+// Russian one/few/many form; fractions → few. Kazakh lists one word three times.
 export const cupsWord = (v: number, [one, few, many]: readonly string[]) => {
   if (v % 1 !== 0) return few;
   const n100 = v % 100;
