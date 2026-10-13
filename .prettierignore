@@ -1,0 +1,11 @@
+dist/
+.astro/
+node_modules/
+graphify-out/
+raw-assets/
+public/
+package-lock.json
+# Audit report: wide tables, prettier would pad every column to the longest cell
+docs/content-audit.md
+test-results/
+playwright-report/
