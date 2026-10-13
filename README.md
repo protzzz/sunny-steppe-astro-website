@@ -1,43 +1,220 @@
-# Astro Starter Kit: Minimal
+# Sunny Steppe
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Двуязычный сайт-витрина казахстанского бренда функциональных сладостей на ксилите.
+Посетитель знакомится с продукцией, сверяет состав и декларации соответствия ЕАЭС и оформляет заказ в WhatsApp.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Playwright](https://img.shields.io/badge/tested_with-Playwright-2EAD33?logo=playwright&logoColor=white)
 
-## 🚀 Project Structure
+**Домен:** [sunnysteppe.kz](https://sunnysteppe.kz) · **Языки:** русский (корень сайта), казахский (`/kz/`)
 
-Inside of your Astro project, you'll see the following folders and files:
+<p>
+  <img src=".github/screenshots/home-desktop.webp" alt="Главная страница, десктоп" width="66%" />
+  <img src=".github/screenshots/home-mobile.webp" alt="Главная страница, телефон" width="26%" />
+</p>
+<p>
+  <img src=".github/screenshots/product-desktop.webp" alt="Страница товара Lollipop, десктоп" width="66%" />
+  <img src=".github/screenshots/product-mobile.webp" alt="Страница товара Energy Gum на казахском, телефон" width="26%" />
+</p>
+
+## О проекте
+
+**Sunny Steppe** — казахстанский бренд сладостей без сахара: 100% ксилит для дома, леденцы Lollipop с DHA (Омега-3)
+и Energy Gum с кофеином. Бренду был нужен сайт, который:
+
+- **объясняет продукт.** Что такое ксилит, чем он отличается от сахара, что входит в каждый товар;
+- **вызывает доверие.** На сайте лежат декларации о соответствии ЕАЭС, у каждого товара есть состав
+  и характеристики с упаковки;
+- **ведёт к заказу.** Интернет-магазина нет, бренд работает через WhatsApp, поэтому любая кнопка «Заказать»
+  открывает чат с готовым номером;
+- **говорит на двух языках.** Полная русская и казахская версии с переключателем, который оставляет посетителя
+  на той же странице.
+
+Каждый текст на сайте сверен с источниками: документами владельцев, упаковкой и декларациями.
+Для пищевой продукции это важно: маркетинговые и медицинские обещания без подтверждения на сайт не попадают.
+
+## Возможности
+
+- **10 страниц на каждом языке:** главная, каталог, три страницы товаров, статья о ксилите, о бренде, FAQ,
+  документы, контакты, а также двуязычная страница 404.
+- **Интерактивная упаковка.** Пачку можно наклонять мышью или пальцем, переворачивать на обратную сторону
+  и рассматривать этикетку в увеличении.
+- **Калькуляторы.** «Ксилит против сахара» показывает, сколько калорий в год уходит при замене сахара.
+  «Счётчик бодрости» переводит подушечки Energy Gum в чашки эспрессо по кофеину.
+- **Документы.** PDF деклараций ЕАЭС можно открыть или скачать на странице товара, в разделе «Документы» и в FAQ.
+- **SEO.** `canonical`, `hreflang` (ru / kk / x-default), Open Graph и Twitter-карточки с фото упаковки,
+  `sitemap.xml`, `robots.txt`.
+- **Скорость.** Сайт полностью статический, JavaScript загружается только для интерактивных блоков.
+  Картинки при сборке конвертируются в AVIF/WebP нужных размеров, шрифты раздаются с собственного домена.
+- **Доступность.** Навигация с клавиатуры, видимый фокус, `aria`-атрибуты. Автоматическая проверка axe-core
+  входит в тесты.
+
+## Стек и почему он
+
+| Технология                                      | Зачем                                                                                                                                                                                                    |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Astro 7](https://astro.build)                  | Контентный сайт без личного кабинета и корзины. Astro собирает готовый HTML, а JavaScript отправляет только туда, где он нужен ([островная архитектура](https://docs.astro.build/en/concepts/islands/)). |
+| [React 19](https://react.dev)                   | Только для островов с состоянием: меню, 3D-просмотр, калькуляторы, FAQ. Каждый остров гидрируется лениво (`client:idle` / `client:visible`).                                                             |
+| [Tailwind CSS 4](https://tailwindcss.com)       | Дизайн-токены (цвета бренда, брейкпоинты, анимации) лежат в одном `@theme` в `global.css`.                                                                                                               |
+| TypeScript (strict)                             | Структура словаря русского языка задаёт тип для казахского, поэтому пропущенный или лишний ключ ловится ещё до сборки.                                                                                   |
+| Astro Assets + Fonts API                        | AVIF/WebP с `srcset`, самостоятельный хостинг шрифтов Playfair Display и Manrope.                                                                                                                        |
+| Vitest · Playwright · axe-core                  | Юнит-тесты логики, браузерные тесты на десктопе и телефоне, проверка доступности.                                                                                                                        |
+| ESLint · Prettier · GitHub Actions · Dependabot | Единый стиль кода, CI на каждый push и pull request, еженедельные обновления зависимостей.                                                                                                               |
+
+## Как устроено
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── pages/[...lang]/     страницы; каждая собирается для русского (корень) и казахского (/kz/)
+│   └── product/[id]     страницы товаров генерируются из data/products.ts
+├── layouts/Default      <head> с SEO-разметкой, шапка, подвал
+├── components/          .astro — статические блоки, .tsx — React-острова
+├── data/                контакты, товары, декларации, навигация
+├── i18n/                словари ru.ts и kz.ts и сборка итоговых словарей
+├── assets/              фото упаковок (оптимизируются при сборке)
+└── styles/global.css    тема Tailwind
+public/docs/             PDF деклараций ЕАЭС
+scripts/check-build.mjs  проверка собранного сайта
+tests/unit, tests/e2e    Vitest и Playwright
+.github/screenshots/      скриншоты для этого README
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Несколько решений, на которые стоит обратить внимание:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- **Контент отделён от вёрстки.** В шаблонах нет ни одной строки текста. Тексты лежат в словарях,
+  товары и декларации в `src/data/`.
+- **Казахский поверх русского.** `kz.ts` содержит только переведённые ключи и накладывается на `ru.ts`.
+  Если ключ забыли перевести, сайт не сломается, а сборка покажет это и упадёт (см. ниже).
+- **Контакты в одном месте.** В текстах стоят плейсхолдеры `{phone}`, `{deliveryTerms}` и другие.
+  Значения подставляются из `src/data/contacts.ts` при сборке, поэтому смена номера правит все страницы сразу.
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Качество и автоматизация
 
-## 🧞 Commands
+**Проверка сборки** (`scripts/check-build.mjs`) обходит готовый `dist/` и падает, если:
 
-All commands are run from the root of the project, from a terminal:
+- внутренняя ссылка, картинка или `og:image` ведёт в никуда;
+- на казахской странице остался русский текст. Сверка идёт со словарём из перевода клиента,
+  поэтому общие слова («ксилит», «таурин») ошибкой не считаются.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+**Юнит-тесты** (Vitest, `tests/unit`) проверяют слияние словарей, подстановку контактов, построение ссылок,
+склонения и данные товаров и деклараций.
 
-## 👀 Want to learn more?
+**Браузерные тесты** (Playwright, `tests/e2e`) прогоняются на двух устройствах: десктоп 1280×800 и телефон 360×740.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- **Обход сайта.** Страницы не перечисляются вручную, тест сам находит их по ссылкам от `/` и `/kz/`,
+  так что новая страница проверяется автоматически.
+- **Каждая страница.** Проверяются язык, заголовок и описание, отсутствие ошибок в консоли
+  и горизонтальной прокрутки, незаполненные плейсхолдеры, формат ссылок и WhatsApp,
+  `rel="noopener"`, работа переключателя RU/KZ.
+- **Интерактив.** Мобильное меню (включая закрытие по Esc), FAQ, переворот упаковки, оба калькулятора.
+- **Ссылки и редиректы.** Каждый PDF отдаётся с кодом 200, `/` — русская главная, `/kz/` — казахская, неизвестный адрес отдаёт 404.
+- **Доступность.** Все страницы на обоих языках проходят axe-core без серьёзных и критических нарушений.
+- **Аналитика.** До согласия нет ни одного запроса в Google, ссылки открываются; после согласия на боевом домене
+  загружается `gtag.js` и уходят три события с параметрами; отзыв согласия останавливает сбор и удаляет cookies;
+  на `localhost` запросов нет даже после согласия. Google при этом не нужен: запросы к нему перехватываются.
+
+**CI** (`.github/workflows/ci.yml`) на каждый push в `master` и на каждый pull request запускает:
+Prettier → ESLint → `astro check` → `tsc` → юнит-тесты → сборку → проверку сборки → Playwright.
+Если тест упал, HTML-отчёт и trace сохраняются как артефакт запуска.
+
+**Dependabot** раз в неделю присылает один pull request со всеми минорными обновлениями npm.
+Мажорные версии приходят отдельными PR, обновления GitHub Actions раз в месяц.
+
+## Запуск
+
+Нужен Node.js 22.12 или новее.
+
+```sh
+npm install
+cp .env.example .env # адрес сайта
+npm run dev          # http://localhost:4321
+```
+
+**Переменные окружения** (`.env`, не в git; образец — `.env.example`):
+
+| Переменная        | Зачем                                                                                                                                                      |
+| :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_SITE_URL` | Адрес сайта. Из него строятся canonical, hreflang, `og:url`, `og:image`, sitemap и `robots.txt`. Обязательна                                               |
+| `PUBLIC_GA_ID`    | Measurement ID Google Analytics 4 (`G-…`). Задаётся **только на хостинге** для боевой сборки, в `.env` пусто                                               |
+| `PUBLIC_NOINDEX`  | `true` для тестовой копии сайта: `noindex` на всех страницах и `Disallow: /` в `robots.txt`. В боевой сборке пусто                                         |
+| `FTP_*`           | Доступ для заливки `dist/` на хостинг ps.kz (`FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_REMOTE_DIR`). Сайт их не читает. В GitHub — только в **Secrets** |
+
+В CI адрес берётся из переменной репозитория `SITE_URL` (Settings → Secrets and variables → Actions → Variables),
+без неё — `https://sunnysteppe.kz`.
+
+`PUBLIC_SITE_URL` должен быть голым https-адресом без пути (`https://sunnysteppe.kz`), иначе сборка остановится.
+
+Секреты (пароли, FTP) никогда не называйте с префиксом `PUBLIC_`: такие значения Astro вписывает прямо в страницы.
+После сборки `check-build` печатает в лог, с каким адресом и с каким GA4 собран сайт, и падает, если хоть одна
+абсолютная ссылка (canonical, hreflang, og, sitemap, `robots.txt`, домен GA4) указывает на другой домен:
+
+```text
+Site URL: https://sunnysteppe.kz (canonical, hreflang, og, sitemap, robots.txt)
+GA4: G-XXXXXXXXXX, loads only on sunnysteppe.kz after consent
+```
+
+### Аналитика (Google Analytics 4)
+
+- **Только с согласия (базовый Consent Mode).** Пока посетитель не нажал «Разрешить» в баннере, `gtag.js` не загружается
+  и в Google не уходит ни одного запроса. Выбор хранится в браузере 6 месяцев; «Настройки cookies» в подвале
+  позволяют передумать, отказ сразу выключает сбор и удаляет cookies `_ga*`. Ссылки на WhatsApp, Instagram и PDF
+  открываются при любом выборе.
+- **Где не работает.** На `astro dev` кода аналитики нет вообще. В сборке без `PUBLIC_GA_ID` нет баннера и скрипта.
+  `gtag.js` загружается только на домене из `PUBLIC_SITE_URL`: на `localhost`, preview-адресах хостинга и в тестах
+  он не запрашивается, даже если посетитель согласился.
+- **События:** `whatsapp_click`, `pdf_download`, `instagram_click` с параметрами `link_location` (header, menu,
+  footer, hero, product, product_cta, contacts, documents, catalog, content), `lang`, `product`, `file_name`,
+  `link_type` (open / download), `link_url`. Новая ссылка на WhatsApp, Instagram или PDF попадает в статистику сама.
+- Код: `src/lib/analytics.ts` (логика, покрыта юнит-тестами), `src/components/ConsentBanner.astro` (баннер и работа
+  в браузере). Тесты: `tests/e2e/analytics.spec.ts`; сайт для них собирается с фиктивным `G-TEST000000`.
+- **Политика конфиденциальности** (`/privacy/`, `/kz/privacy/`, тексты в `privacy` словарей) — **черновик**.
+  Перед запуском её должны проверить владельцы сайта и при необходимости юрист; дату редакции обновить.
+  Казахский текст наш, его нужно показать переводчику.
+
+Все внутренние ссылки заканчиваются на `/` (`trailingSlash: "always"`): так страницы лежат в `dist/`, и так их отдаёт
+любой хостинг без лишнего редиректа. Ссылки строятся только через `localePath()`.
+
+| Команда                | Что делает                                                                        |
+| :--------------------- | :-------------------------------------------------------------------------------- |
+| `npm run dev`          | Dev-сервер на `localhost:4321`                                                    |
+| `npm run build`        | `astro check`, сборка в `dist/` и `scripts/check-build.mjs`                       |
+| `npm run preview`      | Открыть собранный сайт                                                            |
+| `npm run check`        | Только проверка типов: `astro check` и `tsc --noEmit`                             |
+| `npm run lint`         | ESLint                                                                            |
+| `npm run format`       | Prettier                                                                          |
+| `npm test`             | Юнит-тесты, сборка и браузерные тесты на сборке. Это то же, что проверяет CI      |
+| `npm run test:unit`    | Только юнит-тесты (Vitest, `tests/unit`)                                          |
+| `npm run test:e2e`     | Браузерные тесты (Playwright, `tests/e2e`): сам собирает сайт и запускает preview |
+| `npm run test:e2e:dev` | Те же тесты на `astro dev`. Только локально: ловит ошибки, которых нет в сборке   |
+
+### Браузерные тесты подробнее
+
+Перед первым запуском установите браузер: `npx playwright install chromium`.
+
+- Проверить уже опубликованный сайт: `BASE_URL=https://sunnysteppe.kz npx playwright test`.
+- Отдельный файл или устройство: `npx playwright test tests/e2e/interactive.spec.ts --project=mobile`.
+- `E2E_STRICT_TODO=1` — падать, если на `/kz` остались строки с «TODO». По умолчанию это только
+  предупреждение в конце прогона.
+- **Отчёт:** `npx playwright show-report` открывает HTML-отчёт со всеми шагами и скриншотами падений.
+- **Trace упавшего теста:** `npx playwright show-trace test-results/<тест>/trace.zip`. В нём видно каждое
+  действие, DOM до и после, консоль и сеть.
+
+## Как обновлять контент
+
+| Что поменять                       | Где                                                                 |
+| :--------------------------------- | :------------------------------------------------------------------ |
+| Телефон, WhatsApp, почта, доставка | `src/data/contacts.ts`                                              |
+| Товары: тексты, состав, фото       | `src/data/products.ts`, `src/assets/products/`                      |
+| Декларации ЕАЭС                    | `src/data/documents.ts` + PDF в `public/docs/`                      |
+| Тексты страниц                     | `src/i18n/ru.ts` и `src/i18n/kz.ts` (каждый ключ сразу в оба файла) |
+
+Подробные правила для разработчиков и ИИ-ассистентов (соглашения, подводные камни, пошаговые сценарии)
+лежат в [`AGENTS.md`](AGENTS.md).
+
+## Автор
+
+Разработка: [@protzzz](https://github.com/protzzz).
+Тексты, фото упаковок и документы принадлежат бренду Sunny Steppe.

@@ -1,22 +1,184 @@
-## Development
+# Sunny Steppe — сайт
 
-When starting the dev server, use background mode:
+Сайт-витрина казахстанского бренда сладостей на ксилите (леденцы Lollipop с DHA, Energy Gum, 100% ксилит).
+Продаж на сайте нет: все заказы идут через WhatsApp. Два языка: русский (в корне сайта, без префикса) и казахский (`/kz/`).
+Домен: https://sunnysteppe.kz.
 
+Стек: Astro 7 (статическая сборка), React 19 (только для интерактивных «островов»), Tailwind CSS 4, TypeScript (strict).
+
+> `CLAUDE.md` — это символическая ссылка на этот файл (`AGENTS.md`). Правь `AGENTS.md`.
+
+## Команды
+
+| Команда                  | Что делает                                                      |
+| ------------------------ | --------------------------------------------------------------- |
+| `astro dev --background` | Dev-сервер в фоне. Управление: `astro dev stop / status / logs` |
+| `npm run build`          | `astro check` → `astro build` → `scripts/check-build.mjs`       |
+| `npm run lint`           | ESLint (`eslint-plugin-astro`)                                  |
+| `npm run format`         | Prettier (с плагинами для Astro и сортировкой классов Tailwind) |
+| `npm run format:check`   | То же, что проверяет CI                                         |
+| `npm run preview`        | Локальный просмотр собранного `dist/`                           |
+| `npm run test:unit`      | Vitest (`tests/unit`): словари, ссылки, склонения, данные       |
+| `npm run test:e2e`       | Playwright (`tests/e2e`) на сборке, десктоп + телефон           |
+| `npm test`               | Юнит-тесты → сборка → Playwright, как в CI                      |
+
+**Перед тем как считать задачу готовой**, прогони `npm run format:check && npm run lint && npm test`.
+Это те же шаги, что запускает CI (`.github/workflows/ci.yml`). Если браузера нет, сначала выполни
+`npx playwright install chromium`. Если задача меняет логику или интерактив, добавь или поправь тест.
+Страницы для e2e тесты находят сами, обходом ссылок, поэтому список страниц в тестах вести не нужно.
+
+`scripts/check-build.mjs` проверяет собранный `dist/` и роняет сборку, если:
+
+- внутренняя ссылка (`href`, `src`, `srcset`, `og:image`) ведёт на несуществующий файл;
+- на странице `/kz` остался русский текст. Так проявляется ключ, который забыли добавить в `kz.ts`:
+  без перевода берётся русский вариант.
+
+Если проверка ругается на слово, которое на самом деле казахское (термин, название), не отключай её.
+Добавь слово в нужный список в начале скрипта и подпиши, откуда оно.
+
+## Структура
+
+```text
+src/
+  pages/
+    [...lang]/            все страницы, по одной на оба языка (getStaticPaths = langPaths): пустой lang — русский, kz — казахский
+      product/[id].astro  страница товара, генерируется из data/products.ts
+    404.astro             единственная страница вне [...lang]; текст двуязычный прямо в шаблоне
+  layouts/Default.astro   <head> (SEO, hreflang, OG, шрифты), шапка, подвал
+  components/             .astro — статика; .tsx — React-острова
+  data/
+    contacts.ts           телефон, WhatsApp, Instagram, email, условия доставки
+    products.ts           товары: тексты RU + KZ-переопределения, картинки, цвета
+    documents.ts          декларации ЕАЭС (PDF в public/docs/)
+    navigation.ts         пункты меню
+  i18n/
+    ru.ts                 основной словарь; его форма задаёт тип Dictionary
+    kz.ts                 частичный словарь (PartialDictionary), накладывается поверх ru
+    build.ts              слияние kz поверх ru и подстановка контактов (покрыто юнит-тестами)
+    index.ts              getDict(), localePath(), langPaths()
+  assets/                 картинки, которые Astro оптимизирует (AVIF/WebP)
+  styles/global.css       Tailwind @theme: цвета, брейкпоинты, анимации, утилиты
+public/
+  docs/                   PDF деклараций
+scripts/                  проверка сборки и сбор слов из казахского перевода
+tests/unit, tests/e2e     Vitest и Playwright (+ axe-core для доступности)
+.github/
+  workflows/ci.yml        CI: те же проверки, что npm test
+  screenshots/            скриншоты для README (главная и товар, десктоп + телефон)
+docs/content-audit.md     аудит текстов: откуда взято каждое предложение (только локально, в .gitignore)
 ```
-astro dev --background
-```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+Алиасы импортов: `@components/*`, `@layouts/*`, `@data/*`, `@i18n/*`, `@assets/*`.
 
-## Documentation
+## Тексты и языки
 
-Full documentation: https://docs.astro.build
+- **В шаблонах нет текста.** Всё, что видит посетитель, лежит в `src/i18n/ru.ts` + `kz.ts`, а тексты товаров
+  в `src/data/products.ts`. Исключение одно: `404.astro`.
+- Новый ключ добавляй **сразу в оба** файла. Если перевода от клиента нет, напиши свой казахский вариант
+  и пометь его строкой `// TODO-перевод: our Kazakh, not in the client's texts — check with the translator.`
+- Контакты и условия доставки **не пишутся в тексты руками**. Используй плейсхолдеры `{phone}`,
+  `{deliveryCarriers}`, `{deliveryCarrierList}`, `{deliveryPickup}`, `{deliveryTerms}`, `{deliveryTermsShort}`:
+  их подставляет `i18n/build.ts` из `data/contacts.ts`. Чтобы поменять телефон или условия, правь только `contacts.ts`.
+- Казахская версия: в URL `kz`, а в `<html lang>` и `hreflang` пишется `kk` (код ISO). Это сделано намеренно.
+- Ссылки строй только через `localePath(lang, '/route')`, не склеивай строки вручную. Он добавляет `/` в конце:
+  в конфиге `trailingSlash: "always"`, и `astro dev` без слеша отвечает 404.
+- Адрес сайта не пиши в коде: он в `PUBLIC_SITE_URL` (`.env`), в коде — `Astro.site`. `robots.txt` строится
+  из него же (`src/pages/robots.txt.ts`).
+- Все переменные окружения описаны в `.env.example`, их схема лежит в `env.schema` в `astro.config.mjs`. Новую
+  переменную добавляй в оба места. Секреты (`FTP_*`, любые пароли) **никогда** не называй с префиксом `PUBLIC_`:
+  такие значения попадают в HTML.
 
-Consult these guides before working on related tasks:
+### Источник правды для контента
 
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+Сайт продаёт пищевую продукцию, поэтому **не придумывай факты, обещания и медицинские утверждения**.
+Каждое предложение должно опираться на один из источников:
+
+- документы владельцев: `../assets/text/ru/*.docx`, `../assets/text/kz/*.docx`;
+- контакты: `../assets/base-info.txt`;
+- упаковка и макеты: `../assets/item-images/`, `../assets/cover/`;
+- декларации ЕАЭС: `public/docs/*.pdf`;
+- макет дизайна: `../design/`.
+
+Перед правкой текста загляни в `docs/content-audit.md`. Там отмечено, что владельцы просили не трогать
+(⏸: слоган, состав и углеводы Energy Gum, география, блок «Скоро» и др.) и какие вопросы к ним ещё открыты.
+Формулировки о здоровье (сахар в крови, зубы, мозг, диабет) только нейтральные и со ссылкой на источник.
+Если сомневаешься, спроси, а не сочиняй.
+
+## Компоненты и стили
+
+- По умолчанию пиши компонент на `.astro`. React (`.tsx`) нужен только там, где есть состояние или
+  интерактив: шапка с бургером, 3D-просмотр упаковки, калькуляторы, FAQ. Выбирай самую ленивую директиву,
+  которая подходит: `client:visible` для того, что ниже первого экрана, `client:idle` для шапки и FAQ,
+  `client:load` только для просмотра упаковки на странице товара.
+- React-острова получают тексты пропсами (`t={t.calc}`), а не импортируют словарь сами.
+- Картинки для острова готовятся на сервере через `getImage()` и передаются URL-ами
+  (см. `Default.astro` → логотип, `product/[id].astro` → `viewerImage`).
+- Стили пишутся только классами Tailwind. Цвета берутся из токенов в `global.css` (`navy`, `gold`, `honey`, `cream`,
+  `paper`, `lead`, `muted`…), новые hex-коды в разметку не добавляй. Брейкпоинты `nav` (1100px)
+  и `wide` (1240px) управляют шапкой. Утилиты: `container`, `cards-3`.
+- Шрифты (Playfair Display, Manrope) подключены через Fonts API в `astro.config.mjs` и раздаются
+  с нашего домена. В них нет казахских букв (ә, ғ, қ, ң, ө, ұ, ү, һ), поэтому браузер рисует эти буквы
+  запасным шрифтом. Поэтому стоит `optimizedFallbacks: false`, не включай его.
+
+## Картинки
+
+- Исходники лежат в `raw-assets/` и **не попадают в git**.
+- В `src/assets/products/` лежат готовые `.webp` упаковок (`<id>-front`, `<id>-back`). Astro сам режет их
+  в AVIF/WebP нужных размеров.
+- Превью для соцсетей (`og:image`) layout делает сам: берёт `image` (у товара — `p.img`, по умолчанию лицевую
+  сторону Lollipop) и при сборке переводит в JPG на кремовом фоне, потому что WebP соцсети понимают плохо.
+  Отдельные JPG не нужны; старые лежат в `raw-assets/og/`.
+
+## Типовые задачи
+
+**Новая страница**
+
+1. `src/pages/[...lang]/<name>.astro` с `export const getStaticPaths = langPaths;` и
+   `const lang = langFromParam(Astro.params.lang);`, обёрнутая в `<Default>`.
+2. Заголовок `meta.<name>` и тексты добавь в `ru.ts` и `kz.ts`.
+3. Если страница нужна в меню, добавь её в `routes` в `data/navigation.ts` и подпись в `nav` обоих словарей.
+
+**Новый товар**
+
+1. Добавь `id` в union в `Product` и объект в `products`. Казахские тексты пиши в объект `kz` того же файла.
+2. Положи `<id>-front.webp` / `<id>-back.webp` в `src/assets/products/`. Превью для соцсетей сделается само.
+3. Если есть декларация: PDF клади в `public/docs/`, запись добавь в `data/documents.ts`.
+   Страница товара, карточки и раздел «Документы» подтянут его автоматически.
+
+**Смена контактов или доставки:** только `src/data/contacts.ts`.
+
+**Казахский перевод от клиента обновился:** `node scripts/extract-kz-words.mjs`, затем `npm run build`.
+
+## Подводные камни
+
+- **Не убирай `vite.cacheDir` из `astro.config.mjs`.** `astro check` и `astro build` кладут production-сборку
+  React в кеш Vite. Если этот кеш общий с запущенным `astro dev`, все острова в браузере падают
+  с ошибкой `_jsxDEV is not a function`. Если ошибка всё же появилась, останови dev-сервер, удали
+  `node_modules/.vite` и запусти заново.
+- Русская версия живёт в корне (`/`, `/catalog/`), казахская — в `/kz/`. Префикса `/ru` нет: в коде язык по-прежнему
+  `ru`, а пустой сегмент URL для него делают `langSegment()` / `langPaths()` в `src/i18n/index.ts`.
+- У `404.astro` стоит `noindex`. Для неё layout не выводит canonical и hreflang, а переключатель языка ведёт на главную.
+- Prettier: в `.astro`/`.tsx` одинарные кавычки, в `.ts`/`.mjs`/`.js`/`.css` двойные, ширина строки 120.
+  Не спорь с форматтером, просто запусти `npm run format`.
+- Комментарии в коде пишутся на английском, коротко и только там, где есть неочевидное «почему». Тексты для посетителей
+  на русском и казахском.
+
+## Не делать без явной просьбы
+
+- Не менять тексты, помеченные в аудите как «не трогать», и не добавлять маркетинговые или медицинские обещания.
+- Не трогать PDF деклараций и номера деклараций: они копируются из документов дословно.
+- Не добавлять зависимости, другие счётчики аналитики и сторонние скрипты. Google Analytics подключён только через
+  `ConsentBanner.astro` и загружается только после согласия: не вставляй `gtag.js` в `<head>` напрямую
+  (`check-build.mjs` такое не пропустит).
+- Тексты политики конфиденциальности (`privacy` в словарях) — черновик: менять их только по указанию владельцев
+  или юриста, а при изменении обработки данных (новые события, другой сервис) — обновить и политику, и дату редакции.
+- Не коммитить и не пушить без просьбы.
+
+## Документация Astro
+
+https://docs.astro.build. Перед работой над темой открой нужный раздел:
+[роутинг](https://docs.astro.build/en/guides/routing/) ·
+[компоненты](https://docs.astro.build/en/basics/astro-components/) ·
+[React-острова](https://docs.astro.build/en/guides/framework-components/) ·
+[стили и Tailwind](https://docs.astro.build/en/guides/styling/) ·
+[i18n](https://docs.astro.build/en/guides/internationalization/).
