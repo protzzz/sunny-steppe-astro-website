@@ -1,0 +1,43 @@
+---
+import type { Dictionary } from '@i18n/index';
+
+interface Props {
+  cards: Dictionary['order']['cards'];
+  /** "plain" on the home page, "tinted" on the contacts page. */
+  variant?: 'plain' | 'tinted';
+}
+
+const { cards, variant = 'plain' } = Astro.props;
+const tinted = variant === 'tinted';
+// Four cards: one column on phones, 2×2 on tablets, one row on desktop (auto-fit left a 3 + 1 orphan).
+---
+
+<div class:list={['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4', tinted ? 'gap-4' : 'gap-[18px]']}>
+  {
+    cards.map((c) => (
+      <div
+        class:list={[
+          'rounded-[20px] border',
+          tinted ? 'border-gold/22 bg-sand/45 px-5 py-6' : 'border-navy/9 bg-paper px-6 py-7',
+        ]}
+      >
+        <div class:list={['text-[10.5px] font-bold tracking-[.14em]', tinted ? 'text-bronze' : 'text-gold-ink']}>
+          {c.k}
+        </div>
+        <h3
+          class:list={[
+            'm-0 font-heading font-semibold text-navy',
+            // Contacts: the page is narrower than the home page, so on desktop the titles shrink a little to
+            // keep "Jet Logistics / Казпочта" on one line, as on the home page.
+            tinted
+              ? 'mt-[11px] text-[19px] leading-[1.24] lg:text-[clamp(16px,1.6vw,18px)]'
+              : 'mt-3 text-[20px] leading-[1.24]',
+          ]}
+        >
+          {c.t}
+        </h3>
+        <p class:list={['m-0 text-[14px] leading-[1.6] text-muted', tinted ? 'mt-[9px]' : 'mt-2.5']}>{c.d}</p>
+      </div>
+    ))
+  }
+</div>

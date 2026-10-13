@@ -1,0 +1,79 @@
+---
+import { Image } from 'astro:assets';
+import logo from '@assets/logo-mark.png';
+import { contacts } from '@data/contacts';
+import type { NavItem } from '@data/navigation';
+import { localePath, type Dictionary, type Lang } from '@i18n/index';
+
+interface Props {
+  lang: Lang;
+  navItems: NavItem[];
+  t: Dictionary['footer'];
+  /** Show "Cookie settings": only when the site has analytics to consent to. */
+  cookieSettings?: boolean;
+}
+
+const { lang, navItems, t, cookieSettings = false } = Astro.props;
+
+const link = 'text-[14px] text-milk/75 hover:text-honey';
+const heading = 'text-[10.5px] font-bold tracking-[.14em] text-honey';
+---
+
+<footer class="mt-auto bg-navy text-milk/80">
+  <div class="container grid grid-cols-1 gap-8 pt-[clamp(40px,5vw,60px)] pb-7 sm:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <div class="flex items-center gap-[11px]">
+        <Image src={logo} width={64} format="webp" alt="" class="size-8 object-contain" />
+        <span class="font-heading text-[16px] tracking-[.1em] text-milk">SUNNY STEPPE</span>
+      </div>
+      <p class="mt-4 max-w-[34ch] text-[13.5px] leading-[1.62] text-milk/66">{t.tagline}</p>
+    </div>
+
+    <div class="flex flex-col gap-[9px]">
+      <div class={heading}>{t.nav}</div>
+      {
+        navItems.map((item) => (
+          <a href={localePath(lang, item.route)} class={link}>
+            {item.label}
+          </a>
+        ))
+      }
+      <a href={localePath(lang, '/documents')} class={link}>{t.documents}</a>
+    </div>
+
+    <div class="flex flex-col gap-[9px]">
+      <div class={heading}>{t.contacts}</div>
+      <a href={contacts.phoneHref} class={link}>{contacts.phone}</a>
+      <a href={contacts.whatsappHref} target="_blank" rel="noopener noreferrer" class={link}>WhatsApp</a>
+      <a href={contacts.instagramHref} target="_blank" rel="noopener noreferrer" class={link}>{contacts.instagram}</a>
+      <a href={contacts.emailHref} class={link}>{contacts.email}</a>
+    </div>
+
+    <div class="flex flex-col gap-[9px]">
+      <div class={heading}>{t.geo}</div>
+      <span class="text-[14px] leading-[1.6] text-milk/75">{t.geoText}</span>
+    </div>
+  </div>
+
+  <div class="container pb-[30px]">
+    <div class="flex flex-wrap justify-between gap-3 border-t border-milk/15 pt-5 text-[12px] text-milk/62">
+      <span>© {new Date().getFullYear()} Sunny Steppe</span><span>{t.disclaimer}</span>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">
+      <a href={localePath(lang, '/privacy')} class="text-milk/70 underline-offset-2 hover:text-honey hover:underline"
+        >{t.privacy}</a
+      >
+      {
+        cookieSettings && (
+          <button
+            type="button"
+            data-consent-open
+            class="cursor-pointer border-0 bg-transparent p-0 text-[12px] text-milk/70 underline-offset-2 hover:text-honey hover:underline"
+          >
+            {t.cookieSettings}
+          </button>
+        )
+      }
+    </div>
+  </div>
+</footer>

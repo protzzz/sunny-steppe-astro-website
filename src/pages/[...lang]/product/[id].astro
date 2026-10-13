@@ -1,0 +1,195 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import Default from '@layouts/Default.astro';
+import Kicker from '@components/Kicker.astro';
+import { ProductViewer, type ViewerImage } from '@components/ProductViewer';
+import { GumCalculator } from '@components/GumCalculator';
+import { contacts } from '@data/contacts';
+import { DocumentRow } from '@components/DocumentRow';
+import { getDeclarations, regulations } from '@data/documents';
+import { getProducts } from '@data/products';
+import { getDict, langs, localePath, langFromParam, langSegment } from '@i18n/index';
+
+export const getStaticPaths = () =>
+  langs.flatMap((lang) =>
+    getProducts(lang).map((p) => ({ params: { lang: langSegment(lang), id: p.id }, props: { product: p } })),
+  );
+
+const lang = langFromParam(Astro.params.lang);
+const { product: p } = Astro.props;
+const t = getDict(lang);
+const declaration = getDeclarations(lang).find((d) => d.product === p.id);
+
+const h2 = 'font-heading text-[clamp(24px,3vw,34px)] leading-[1.16] font-medium text-navy';
+const card = 'rounded-[20px] border border-navy/9 bg-paper';
+const orderButton = 'inline-flex items-center gap-[9px] rounded-full bg-navy font-semibold text-cream';
+
+// The 3D viewer is a React island, so it can't use <Picture>: build its AVIF/WebP
+// srcsets here. Faces render at most ~390px wide; 800px covers 2x screens.
+const viewerImage = async (src: ImageMetadata): Promise<ViewerImage> => {
+  const widths = [400, 600, 800].filter((w) => w <= src.width);
+  const [avif, webp, zoom] = await Promise.all([
+    getImage({ src, widths, format: 'avif' }),
+    getImage({ src, widths, format: 'webp' }),
+    getImage({ src, width: Math.min(src.width, 1600), format: 'webp' }),
+  ]);
+  return {
+    src: webp.src,
+    width: src.width,
+    height: src.height,
+    avif: avif.srcSet.attribute,
+    webp: webp.srcSet.attribute,
+    zoom: zoom.src,
+  };
+};
+const [front, back] = await Promise.all([viewerImage(p.img), viewerImage(p.back)]);
+---
+
+<Default lang={lang} title={`${p.name} — Sunny Steppe`} description={p.short} image={p.img} product={p.id}>
+  <div style={{ background: p.tint }}>
+    <div class="container pt-[clamp(28px,4vw,52px)] pb-[clamp(44px,6vw,76px)]">
+      <div class="mb-[clamp(20px,3vw,34px)] flex items-center gap-2 text-[12.5px] font-semibold text-earth">
+        <a href={localePath(lang, '/catalog')} class="text-earth">{t.nav.catalog}</a><span>/</span><span
+          class="text-navy">{p.name}</span
+        >
+      </div>
+
+      <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)]"
+      >
+        <ProductViewer
+          client:load
+          name={p.name}
+          front={front}
+          back={back}
+          labels={{
+            rotate: t.ui.rotate,
+            rotateBack: t.ui.rotateBack,
+            zoom: t.ui.zoom,
+            dragHint: t.ui.dragHint,
+            close: t.ui.close,
+          }}
+        />
+
+        <div>
+          <Kicker>{p.kicker}</Kicker>
+          <h1 class="mt-3 font-heading text-[clamp(30px,3.7vw,46px)] leading-[1.08] font-medium text-navy">{p.name}</h1>
+          <p class="mt-4 max-w-[46ch] text-[16px] leading-[1.62] text-lead">{p.lead}</p>
+          <div class="mt-[22px] flex flex-wrap gap-2">
+            {
+              p.badges.map((b) => (
+                <span class="rounded-full border border-navy/10 bg-white/75 px-[13px] py-[7px] text-[12px] font-semibold text-navy">
+                  {b}
+                </span>
+              ))
+            }
+          </div>
+          <div class="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-navy/14 pt-6">
+            <div>
+              <div class="text-[11px] font-bold tracking-[.12em] text-khaki">{t.ui.price}</div>
+              <div class="mt-1 font-heading text-[26px] text-navy">{t.ui.priceTbd}</div>
+              <div class="mt-2.5 w-0 min-w-full text-[12.5px] leading-[1.45] text-subtle">
+                {t.ui.prepayNote}
+                <span class="block">{t.ui.deliveryNote}</span>
+              </div>
+            </div>
+            <a
+              href={contacts.whatsappHref}
+              data-track-location="product"
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                orderButton,
+                'flex-none px-[26px] py-3.5 text-[14.5px] shadow-[0_10px_26px_rgba(20,54,94,.2)]',
+              ]}
+            >
+              {t.ui.order}
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="container py-[clamp(48px,6vw,84px)]">
+    <div class="cards-3 gap-4">
+      {
+        p.bullets.map((b) => (
+          <div class:list={[card, 'px-6 py-[26px]']}>
+            <h2 class="m-0 font-heading text-[19px] leading-[1.24] font-semibold text-navy">{b.t}</h2>
+            <p class="mt-2.5 text-[14px] leading-[1.6] text-muted">{b.d}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {p.id === 'gum' && <GumCalculator client:visible t={t.gumCalc} />}
+
+  <section class="container py-[clamp(48px,6vw,84px)]">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-[clamp(24px,3.5vw,48px)]">
+      <div>
+        <h2 class:list={[h2, 'mb-[22px]']}>{t.ui.specs}</h2>
+        <div class:list={[card, 'overflow-hidden']}>
+          {
+            p.facts.map((f) => (
+              <div class="flex flex-wrap justify-between gap-2 border-b border-navy/7 px-[22px] py-[15px]">
+                <span class="text-[13.5px] font-medium text-subtle">{f.k}</span>
+                <span class="text-right text-[13.5px] font-semibold text-navy">{f.v}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-[22px]">
+        <div>
+          <h2 class:list={[h2, 'mb-3.5']}>{t.ui.composition}</h2>
+          <p class:list={[card, 'm-0 p-[22px] text-[14.5px] leading-[1.7] text-lead']}>{p.composition}</p>
+        </div>
+        <div class="rounded-[20px] border border-gold/24 bg-sand/50 p-[22px]">
+          <div class="text-[11px] font-bold tracking-[.13em] text-bronze">{t.ui.usage}</div>
+          <p class="mt-[9px] text-[14.5px] leading-[1.62] text-lead">{p.usage}</p>
+        </div>
+        <div class="text-[12.5px] leading-[1.6] text-earth">{p.caution}</div>
+      </div>
+    </div>
+
+    {
+      declaration && (
+        <div class="mt-[clamp(36px,4.5vw,56px)]">
+          <h2 class:list={[h2, 'mb-[18px]']}>{t.docs.productTitle}</h2>
+          <DocumentRow
+            title={t.docs.declaration}
+            meta={[`№ ${declaration.number}`, `${regulations} · ${declaration.valid}`]}
+            href={declaration.file}
+            product={p.id}
+            openLabel={t.docs.open}
+            downloadLabel={t.docs.download}
+          />
+        </div>
+      )
+    }
+  </section>
+
+  <section class="bg-linear-180 from-linen to-cream">
+    <div class="container flex flex-col items-center gap-4 py-[clamp(44px,5.5vw,72px)] text-center">
+      <h2 class="m-0 max-w-[20ch] font-heading text-[clamp(24px,3.2vw,36px)] leading-[1.16] font-medium text-navy">
+        {t.ui.ctaTitle}
+      </h2>
+      <p class="m-0 max-w-[48ch] text-[15px] leading-[1.6] text-muted">{t.ui.ctaLead}</p>
+      <a
+        href={contacts.whatsappHref}
+        data-track-location="product_cta"
+        target="_blank"
+        rel="noopener noreferrer"
+        class:list={[orderButton, 'mt-1.5 px-[30px] py-[15px] text-[15px] shadow-[0_12px_28px_rgba(20,54,94,.2)]']}
+      >
+        {t.ui.write}
+        <span>→</span>
+      </a>
+    </div>
+  </section>
+</Default>

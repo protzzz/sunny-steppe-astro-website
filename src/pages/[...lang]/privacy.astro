@@ -1,0 +1,48 @@
+---
+// Privacy policy. The texts in i18n/ru.ts and i18n/kz.ts (`privacy`) are a draft: the site owners,
+// and if needed a lawyer, have to check them before the site goes live.
+import Default from '@layouts/Default.astro';
+import Kicker from '@components/Kicker.astro';
+import { contacts } from '@data/contacts';
+import { getDict, langPaths, langFromParam } from '@i18n/index';
+
+export const getStaticPaths = langPaths;
+
+const lang = langFromParam(Astro.params.lang);
+const t = getDict(lang);
+---
+
+<Default lang={lang} title={t.meta.privacy}>
+  <div class="mx-auto max-w-[760px] px-5 pt-[clamp(40px,5vw,76px)] pb-[clamp(56px,7vw,96px)]">
+    <Kicker>{t.privacy.kicker}</Kicker>
+    <h1 class="mt-3 font-heading text-[clamp(32px,4.6vw,52px)] leading-[1.08] font-medium text-navy">
+      {t.privacy.title}
+    </h1>
+    <p class="mt-3 text-[13px] text-subtle">{t.privacy.updated}</p>
+    <p class="mt-5 text-[16px] leading-[1.65] text-lead">{t.privacy.intro}</p>
+
+    {
+      t.privacy.sections.map((section) => (
+        <section class="mt-9">
+          <h2 class="font-heading text-[clamp(21px,2.4vw,26px)] leading-[1.2] font-semibold text-navy">{section.t}</h2>
+          {section.p.map((text) => {
+            const [before, after] = text.split('{email}');
+            return (
+              <p class="mt-3 text-[15px] leading-[1.7] text-lead">
+                {before}
+                {after !== undefined && (
+                  <>
+                    <a href={contacts.emailHref} class="font-semibold underline underline-offset-2">
+                      {contacts.email}
+                    </a>
+                    {after}
+                  </>
+                )}
+              </p>
+            );
+          })}
+        </section>
+      ))
+    }
+  </div>
+</Default>

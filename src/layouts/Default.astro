@@ -1,0 +1,140 @@
+---
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { Font, getImage } from 'astro:assets';
+import logo from '@assets/logo-mark.png';
+import lollipopFront from '@assets/products/lollipop-front.webp';
+import { Header } from '@components/Header';
+import Footer from '@components/Footer.astro';
+import ConsentBanner from '@components/ConsentBanner.astro';
+import { getNavItems } from '@data/navigation';
+import { getDict, localePath, type Lang } from '@i18n/index';
+import { resolveGaId } from '@lib/analytics';
+import { PUBLIC_GA_ID, PUBLIC_NOINDEX } from 'astro:env/client';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+  /** Picture for og:image, converted to JPEG at build time. Defaults to the brand's hero product shot. */
+  image?: ImageMetadata;
+  /** For pages with no real URL of their own (404), e.g. so hreflang doesn't point at it. */
+  noindex?: boolean;
+  /** Product id of a product page: sent with the analytics events of links on it. */
+  product?: string;
+}
+
+const { title, lang, image = lollipopFront, noindex = false, product } = Astro.props;
+const t = getDict(lang);
+const description = Astro.props.description ?? t.meta.description;
+// Route without the language prefix (Russian has none, Kazakh has /kz), so the RU/KZ switch keeps the page.
+// A noindex page (404) has no real counterpart in the other locale, so its
+// language switcher and canonical/og URLs fall back to the home route instead.
+const route = noindex ? '/' : Astro.url.pathname.replace(/^\/kz(?=\/|$)/, '').replace(/\/$/, '') || '/';
+const navItems = getNavItems(t.nav);
+// "kk" is the ISO code for Kazakh; "kz" is only used in our URLs.
+const htmlLang = lang === 'kz' ? 'kk' : 'ru';
+
+const canonicalURL = new URL(localePath(lang, route), Astro.site);
+const ruAlternateURL = new URL(localePath('ru', route), Astro.site);
+const kzAlternateURL = new URL(localePath('kz', route), Astro.site);
+// Share previews: messengers and social networks handle WebP unevenly, so the pack shot becomes a JPEG,
+// on the site's cream instead of its transparent background.
+const ogImage = await getImage({ src: image, format: 'jpg', background: '#fbf7ef', quality: 82 });
+const imageURL = new URL(ogImage.src, Astro.site);
+const ogLocale = lang === 'kz' ? 'kk_KZ' : 'ru_RU';
+// The header is a React island, so it gets a ready 2x-size file instead of <Image>.
+const headerLogo = await getImage({ src: logo, width: 68, format: 'webp' });
+// Google Analytics: only in a production build with PUBLIC_GA_ID. Even then nothing loads before
+// consent, and gtag.js is only requested on the real domain (see lib/analytics.ts).
+const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- Preload only the Cyrillic files the first screen needs; the rest load on demand.
+         Both fonts are variable (one file for all weights), registered under weight 400. -->
+    <Font cssVariable="--font-playfair" preload={[{ subset: 'cyrillic', weight: 400, style: 'normal' }]} />
+    <Font cssVariable="--font-manrope" preload={[{ subset: 'cyrillic', weight: 400 }]} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <>
+          <link rel="canonical" href={canonicalURL} />
+          <link rel="alternate" hreflang="ru" href={ruAlternateURL} />
+          <link rel="alternate" hreflang="kk" href={kzAlternateURL} />
+          <link rel="alternate" hreflang="x-default" href={ruAlternateURL} />
+        </>
+      )
+    }
+    {PUBLIC_NOINDEX && !noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sunny Steppe" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={imageURL} />
+    <meta property="og:image:width" content={String(image.width)} />
+    <meta property="og:image:height" content={String(image.height)} />
+    <meta property="og:locale" content={ogLocale} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageURL} />
+  </head>
+  <body>
+    <!-- First stop for keyboard users: jump past the header straight to the page content. -->
+    <a
+      href="#main"
+      class="sr-only z-[100] rounded-full bg-navy px-5 py-3 text-[14px] font-semibold text-cream hover:text-cream focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+    >
+      {t.ui.skipToContent}
+    </a>
+    <div class="flex min-h-screen flex-col bg-cream">
+      <!-- Server-rendered links work without JS; only the burger needs hydration. -->
+      <Header
+        client:idle
+        logo={headerLogo.src}
+        lang={lang}
+        route={route}
+        items={navItems}
+        menuExtraItems={[{ route: '/documents', label: t.footer.documents }]}
+        writeLabel={t.ui.write}
+        menuLabel={t.ui.menu}
+      />
+
+      {
+        lang === 'kz' && (
+          <div class="bg-navy px-5 py-[9px] text-center text-[12.5px] tracking-[.02em] text-milk">{t.ui.kzNotice}</div>
+        )
+      }
+
+      <main id="main" tabindex="-1" class="flex-1 focus:outline-none" data-product={product}>
+        <slot />
+      </main>
+
+      <Footer lang={lang} navItems={navItems} t={t.footer} cookieSettings={!!gaId} />
+    </div>
+
+    {
+      gaId && (
+        <ConsentBanner
+          gaId={gaId}
+          siteUrl={Astro.site!.href}
+          privacyHref={localePath(lang, '/privacy')}
+          t={t.consent}
+        />
+      )
+    }
+  </body>
+</html>

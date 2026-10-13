@@ -1,0 +1,211 @@
+---
+import { Picture } from 'astro:assets';
+import Default from '@layouts/Default.astro';
+import candy from '@assets/products/lollipop-candy.webp';
+import gumFront from '@assets/products/gum-front.webp';
+import lollipopFront from '@assets/products/lollipop-front.webp';
+import xylitolFront from '@assets/products/xylitol-front.webp';
+import Kicker from '@components/Kicker.astro';
+import ProductCard from '@components/ProductCard.astro';
+import OrderCards from '@components/OrderCards.astro';
+import { SugarCalculator } from '@components/SugarCalculator';
+import { contacts } from '@data/contacts';
+import { getProducts } from '@data/products';
+import { getDict, langPaths, localePath, langFromParam } from '@i18n/index';
+
+export const getStaticPaths = langPaths;
+
+const lang = langFromParam(Astro.params.lang);
+const t = getDict(lang);
+
+// Number badges of the four advantages: tinted background, text dark enough for 4.5:1 on it.
+const advColors = [
+  { bg: '#EAF1FA', fg: '#33609E' },
+  { bg: '#E9F3EE', fg: '#3A6A50' },
+  { bg: '#FBEFF1', fg: '#9B4258' },
+  { bg: '#F7EEDC', fg: '#82601F' },
+];
+
+const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-medium text-navy';
+---
+
+<Default lang={lang} title={t.meta.home}>
+  <section class="relative overflow-hidden bg-linear-[168deg] from-cream via-linen via-58% to-sand">
+    <div
+      class="pointer-events-none absolute -top-[140px] -right-[120px] size-[520px] animate-glow rounded-full bg-radial from-[rgba(226,182,96,.34)] to-[rgba(226,182,96,0)] to-68%"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute -bottom-[180px] -left-[140px] size-[460px] rounded-full bg-radial from-[rgba(88,132,196,.16)] to-[rgba(88,132,196,0)] to-70%"
+    >
+    </div>
+
+    <div
+      class="relative container grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] items-center gap-[clamp(28px,4vw,60px)] pt-[clamp(48px,7vw,96px)] pb-[clamp(56px,7vw,88px)]"
+    >
+      <div class="animate-rise">
+        <div
+          class="inline-flex items-center gap-[9px] rounded-full border border-navy/10 bg-white/72 py-[7px] pr-[15px] pl-[11px] text-[11px] font-bold tracking-[.14em] text-navy"
+        >
+          <span class="block size-2 rounded-full bg-honey"></span>{t.home.kicker}
+        </div>
+        <h1
+          class="mt-5 font-heading text-[clamp(38px,5.6vw,68px)] leading-[1.04] font-medium tracking-[-.015em] text-navy"
+        >
+          {t.home.h1a}{' '}
+          <em class="text-gold-deep italic">{t.home.h1b}</em>{t.home.h1c && ` ${t.home.h1c}`}
+        </h1>
+        <p class="mt-5 max-w-[46ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.62] text-lead">{t.home.lead}</p>
+        <div class="mt-[30px] flex flex-wrap gap-3">
+          <a
+            href={localePath(lang, '/catalog')}
+            class="inline-flex items-center gap-[9px] rounded-full bg-navy px-[26px] py-3.5 text-[14.5px] font-semibold text-cream shadow-[0_10px_26px_rgba(20,54,94,.2)]"
+          >
+            {t.ui.seeProducts}
+            <span class="text-[16px]">→</span>
+          </a>
+          <a
+            href={contacts.whatsappHref}
+            data-track-location="hero"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-[9px] rounded-full border-[1.5px] border-navy/24 bg-transparent px-6 py-3.5 text-[14.5px] font-semibold text-navy"
+          >
+            {t.ui.write}
+          </a>
+        </div>
+        <div class="mt-[38px] flex flex-wrap gap-[clamp(20px,4vw,44px)] border-t border-navy/12 pt-[26px]">
+          {
+            t.home.stats.map((s) => (
+              <div>
+                <div class="font-heading text-[31px] leading-none text-navy">{s.v}</div>
+                <div class="mt-[7px] text-[11.5px] font-semibold tracking-[.1em] text-earth">{s.k}</div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="relative flex min-h-[340px] items-center justify-center">
+        <div
+          class="absolute aspect-square w-[min(78%,380px)] rounded-full bg-radial-[at_40%_35%] from-white/95 via-sand/50 via-60% to-sand/0 to-72%"
+        >
+        </div>
+        <!-- Largest element of the first screen: load it first. -->
+        <Picture
+          src={lollipopFront}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[330, 500, 660]}
+          sizes="(max-width: 700px) 66vw, 330px"
+          loading="eager"
+          fetchpriority="high"
+          pictureAttributes={{ class: 'contents' }}
+          alt="Sunny Steppe Lollipop"
+          class="relative w-[min(66%,330px)] animate-float drop-shadow-[0_34px_46px_rgba(20,54,94,.24)]"
+        />
+        <Picture
+          src={gumFront}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[240, 360, 480]}
+          sizes="(max-width: 700px) 46vw, 236px"
+          loading="eager"
+          pictureAttributes={{ class: 'contents' }}
+          alt="Sunny Steppe Energy Gum"
+          class="absolute right-[2%] bottom-[6%] w-[min(46%,236px)] animate-[ssFloat_7s_ease-in-out_.9s_infinite] drop-shadow-[0_24px_34px_rgba(20,54,94,.26)]"
+        />
+        <Picture
+          src={xylitolFront}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[170, 255, 340]}
+          sizes="(max-width: 700px) 33vw, 166px"
+          loading="eager"
+          pictureAttributes={{ class: 'contents' }}
+          alt="Sunny Steppe Xylitol"
+          class="absolute top-[4%] left-0 w-[min(33%,166px)] animate-[ssFloat_8s_ease-in-out_.4s_infinite] drop-shadow-[0_24px_34px_rgba(20,54,94,.22)]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="container py-[clamp(56px,7vw,96px)]">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <Kicker>{t.home.prodKicker}</Kicker>
+        <h2 class={h2}>{t.home.prodTitle}</h2>
+      </div>
+      <a
+        href={localePath(lang, '/catalog')}
+        class="border-b-[1.5px] border-gold/40 pb-[3px] text-[14px] font-semibold text-gold-ink"
+      >
+        {t.ui.allProducts} →
+      </a>
+    </div>
+    <div class="cards-3 mt-9 gap-5">
+      {getProducts(lang).map((p) => <ProductCard product={p} lang={lang} ui={t.ui} compact />)}
+    </div>
+  </section>
+
+  <SugarCalculator client:visible t={t.calc} />
+
+  <section class="container py-[clamp(56px,7vw,96px)]">
+    <Kicker>{t.home.advKicker}</Kicker>
+    <h2 class={h2}>{t.home.advTitle}</h2>
+    <p class="mt-3.5 max-w-[58ch] text-[16px] leading-[1.6] text-lead">{t.home.advLead}</p>
+    <div class="mt-[38px] grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        t.home.adv.map((a, i) => (
+          <div class="flex flex-col gap-3 rounded-[20px] border border-navy/9 bg-paper px-6 pt-[26px] pb-7">
+            <div
+              class="flex size-[42px] items-center justify-center rounded-[13px]"
+              style={{ background: advColors[i % advColors.length].bg, color: advColors[i % advColors.length].fg }}
+            >
+              <span class="font-heading text-[19px] font-semibold">{a.n}</span>
+            </div>
+            <h3 class="mt-1.5 font-heading text-[19px] leading-[1.22] font-semibold text-navy">{a.t}</h3>
+            <p class="m-0 text-[14px] leading-[1.58] text-muted">{a.d}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bg-linear-180 from-linen to-cream">
+    <div
+      class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(52px,6.5vw,88px)]"
+    >
+      <div class="flex justify-center">
+        <Picture
+          src={candy}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[300, 450, 600]}
+          sizes="(max-width: 700px) 74vw, 300px"
+          pictureAttributes={{ class: 'contents' }}
+          alt=""
+          class="w-[min(74%,300px)] animate-[ssFloat_8s_ease-in-out_infinite] drop-shadow-[0_26px_34px_rgba(20,54,94,.18)]"
+        />
+      </div>
+      <div>
+        <Kicker>{t.home.philKicker}</Kicker>
+        <h2 class="mt-3 font-heading text-[clamp(26px,3.3vw,38px)] leading-[1.16] font-medium text-navy">
+          {t.home.philTitle}
+        </h2>
+        <p class="mt-4 text-[15.5px] leading-[1.66] text-lead">{t.home.philText}</p>
+        <a
+          href={localePath(lang, '/about')}
+          class="mt-[22px] inline-flex items-center gap-2 border-b-[1.5px] border-navy/25 pb-1 text-[14.5px] font-semibold text-navy"
+        >
+          {t.ui.aboutMore}
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container py-[clamp(56px,7vw,88px)]">
+    <OrderCards cards={t.order.cards} />
+  </section>
+</Default>

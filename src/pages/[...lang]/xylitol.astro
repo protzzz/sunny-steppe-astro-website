@@ -1,0 +1,91 @@
+---
+import { Picture } from 'astro:assets';
+import Default from '@layouts/Default.astro';
+import xylitolFront from '@assets/products/xylitol-front.webp';
+import Kicker from '@components/Kicker.astro';
+import { getDict, langPaths, langFromParam } from '@i18n/index';
+
+export const getStaticPaths = langPaths;
+
+const lang = langFromParam(Astro.params.lang);
+const t = getDict(lang);
+
+const h2 = 'mb-3.5 font-heading text-[clamp(24px,3vw,34px)] leading-[1.16] font-medium text-navy';
+const row = 'grid grid-cols-[1.2fr_1fr_1fr] gap-2 px-5 py-3.5';
+---
+
+<Default lang={lang} title={t.meta.xylitol}>
+  <section class="bg-linear-[168deg] from-[#EFF4FB] to-cream">
+    <div
+      class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(44px,5.5vw,80px)]"
+    >
+      <div>
+        <Kicker>{t.xyl.kicker}</Kicker>
+        <h1 class="mt-3 font-heading text-[clamp(32px,4.6vw,54px)] leading-[1.08] font-medium text-navy">
+          {t.xyl.title}
+        </h1>
+        <p class="mt-[18px] max-w-[48ch] text-[16px] leading-[1.66] text-lead">{t.xyl.lead}</p>
+      </div>
+      <div class="flex justify-center">
+        <Picture
+          src={xylitolFront}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[310, 465, 620]}
+          sizes="(max-width: 700px) 72vw, 310px"
+          loading="eager"
+          fetchpriority="high"
+          pictureAttributes={{ class: 'contents' }}
+          alt=""
+          class="w-[min(72%,310px)] animate-[ssFloat_8s_ease-in-out_infinite] drop-shadow-[0_28px_38px_rgba(20,54,94,.2)]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="container py-[clamp(48px,6vw,84px)]">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        t.xyl.cards.map((c) => (
+          <div class="rounded-[20px] border border-navy/9 bg-paper px-6 py-[26px]">
+            <div class="font-heading text-[32px] leading-none text-gold-deep">{c.n}</div>
+            <h2 class="mt-3 font-heading text-[19px] leading-[1.24] font-semibold text-navy">{c.t}</h2>
+            <p class="mt-2.5 text-[14px] leading-[1.6] text-muted">{c.d}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      class="mt-[clamp(36px,5vw,60px)] grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-[clamp(24px,3.5vw,48px)]"
+    >
+      <div>
+        <h2 class={h2}>{t.xyl.compareTitle}</h2>
+        <div class="overflow-hidden rounded-[20px] border border-navy/9 bg-paper">
+          <div class:list={[row, 'bg-navy/5 text-[11.5px] font-bold tracking-[.08em] text-navy']}>
+            <span></span><span class="text-right">{t.xyl.colSugar}</span><span class="text-right text-gold-ink"
+              >{t.xyl.colXyl}</span
+            >
+          </div>
+          {
+            t.xyl.rows.map((r) => (
+              <div class:list={[row, 'border-b border-navy/7 text-[13.5px]']}>
+                <span class="font-medium text-subtle">{r.k}</span>
+                <span class="text-right text-muted">{r.a}</span>
+                <span class="text-right font-bold text-navy">{r.b}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <div>
+        <h2 class={h2}>{t.xyl.teethTitle}</h2>
+        <p class="mb-4 text-[15px] leading-[1.7] text-lead">{t.xyl.teethText}</p>
+        <div class="rounded-[20px] border border-gold/24 bg-sand/50 p-[22px]">
+          <div class="text-[11px] font-bold tracking-[.13em] text-bronze">{t.xyl.howKicker}</div>
+          <p class="mt-[9px] text-[14.5px] leading-[1.62] text-lead">{t.xyl.howText}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Default>

@@ -1,0 +1,56 @@
+---
+import Default from '@layouts/Default.astro';
+import Kicker from '@components/Kicker.astro';
+import OrderCards from '@components/OrderCards.astro';
+import { contacts } from '@data/contacts';
+import { getDict, langPaths, langFromParam } from '@i18n/index';
+
+export const getStaticPaths = langPaths;
+
+const lang = langFromParam(Astro.params.lang);
+const t = getDict(lang);
+
+const cards = [
+  { k: t.contacts.whatsapp, v: contacts.phone, href: contacts.whatsappHref },
+  { k: t.contacts.phone, v: contacts.phone, href: contacts.phoneHref },
+  { k: t.contacts.instagram, v: contacts.instagram, href: contacts.instagramHref },
+  { k: t.contacts.email, v: contacts.email, href: contacts.emailHref },
+];
+---
+
+<Default lang={lang} title={t.meta.contacts}>
+  <div class="mx-auto max-w-[1100px] px-5 pt-[clamp(40px,5vw,76px)] pb-[clamp(56px,7vw,96px)]">
+    <Kicker>{t.contacts.kicker}</Kicker>
+    <h1 class="mt-3 font-heading text-[clamp(32px,4.6vw,52px)] leading-[1.08] font-medium text-navy">
+      {t.contacts.title}
+    </h1>
+    <p class="mt-3.5 max-w-[52ch] text-[16px] leading-[1.62] text-lead">{t.contacts.lead}</p>
+
+    <div class="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        cards.map((c) => (
+          <a
+            href={c.href}
+            data-track-location="contacts"
+            {...(c.href.startsWith('http') && { target: '_blank', rel: 'noopener noreferrer' })}
+            class="flex flex-col gap-[7px] rounded-[20px] border border-navy/9 bg-paper p-6 hover:border-gold/50"
+          >
+            <span class="text-[10.5px] font-bold tracking-[.14em] text-khaki">{c.k}</span>
+            <span class="font-heading text-[20px] leading-[1.25] wrap-anywhere text-navy lg:text-[clamp(17px,1.5vw,20px)]">
+              {c.v}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="mt-4">
+      <OrderCards
+        cards={t.order.cards.map((c, i) => (i === 1 ? t.contacts.orderCard : i === 2 ? t.contacts.geoCard : c))}
+        variant="tinted"
+      />
+    </div>
+
+    <div class="mt-7 text-[13px] leading-[1.7] text-subtle">{t.contacts.legal}</div>
+  </div>
+</Default>

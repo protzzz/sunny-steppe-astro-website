@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@theme {
+  /* Header switches to the burger menu below `nav`, and hides the WhatsApp button below `wide`. */
+  --breakpoint-nav: 1100px;
+  --breakpoint-wide: 1240px;
+
+  --color-navy: #14365e;
+  /* Gold is for borders, outlines and accents. On the light backgrounds (cream → wheat) it is too
+     pale for text, so text uses the darker shades: gold-ink for regular text (at least 4.5:1, WCAG AA),
+     gold-deep only for large headings and numbers (at least 3:1). khaki, bronze and earth are text
+     colours only and are dark enough for 4.5:1 on their own. */
+  --color-gold: #c08b36;
+  --color-gold-deep: #a0762b;
+  --color-gold-ink: #8a5f1c;
+  --color-honey: #dca33f;
+  --color-bronze: #836020;
+  --color-khaki: #6f624a;
+  --color-earth: #665a43;
+
+  --color-cream: #fbf7ef;
+  --color-paper: #fffdf9;
+  --color-linen: #f7efe0;
+  --color-sand: #f3e7d2;
+  --color-wheat: #f0e2c4;
+  --color-milk: #f5eedf;
+
+  --color-ink: #1f2a37;
+  --color-lead: #4a5a6e;
+  --color-muted: #5a6879;
+  --color-subtle: #677382;
+  --color-mist: #646b75;
+
+  --color-coffee: #2a1e15;
+  --color-froth: #f0e4d2;
+  --color-caramel: #d9a45e;
+
+  --animate-float: ssFloat 7s ease-in-out infinite;
+  --animate-rise: ssRise 0.7s ease both;
+  --animate-glow: ssGlow 9s ease-in-out infinite;
+
+  @keyframes ssFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  @keyframes ssRise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes ssGlow {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.06);
+    }
+  }
+}
+
+/* Font stacks come from the Fonts API in astro.config.mjs (with metric-matched fallbacks). */
+@theme inline {
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-manrope);
+}
+
+@utility container {
+  @apply mx-auto max-w-[1240px] px-5;
+}
+
+/* Three cards: one column on phones, one row on desktop. In between, 2 + 1 with the lone
+   card centred: four half-width tracks, each card spans two, the last odd one starts at the second. */
+@utility cards-3 {
+  @apply grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-3;
+  & > * {
+    @apply sm:col-span-2 lg:col-span-1;
+  }
+  & > :last-child:nth-child(odd) {
+    @apply sm:col-start-2 lg:col-start-auto;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* The design relies on the browser's default line height, not Tailwind's 1.5. */
+    line-height: normal;
+  }
+  body {
+    @apply overflow-x-hidden bg-cream font-body text-ink;
+    text-wrap: pretty;
+  }
+  a {
+    @apply text-navy no-underline hover:text-gold-ink;
+  }
+  button {
+    font-family: inherit;
+  }
+  ::selection {
+    @apply bg-wheat text-navy;
+  }
+  :focus-visible {
+    @apply rounded outline-2 outline-offset-3 outline-gold;
+  }
+
+  /* Visitors who asked the system for less motion: no floating, glowing or sliding.
+     Elements end up in their final state at once (ssRise fills `both`). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

@@ -1,0 +1,179 @@
+---
+import type { Dictionary } from '@i18n/index';
+
+interface Props {
+  gaId: string;
+  /** PUBLIC_SITE_URL: gtag.js is only requested on this host. */
+  siteUrl: string;
+  privacyHref: string;
+  t: Dictionary['consent'];
+}
+
+const { gaId, siteUrl, privacyHref, t } = Astro.props;
+const button =
+  'inline-flex min-w-[140px] cursor-pointer items-center justify-center rounded-full px-5 py-3 text-[14px] font-semibold';
+---
+
+<!-- Shown by the script below when there is no stored choice, or from "Cookie settings" in the footer.
+     Without JavaScript it stays hidden, and nothing is tracked either. -->
+<section
+  id="consent-banner"
+  data-ga-id={gaId}
+  data-site-url={siteUrl}
+  aria-label={t.label}
+  hidden
+  class="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[720px] rounded-[20px] border border-navy/12 bg-paper p-5 shadow-[0_18px_50px_rgba(20,54,94,.18)] sm:inset-x-5 sm:bottom-5 sm:p-6"
+>
+  <p class="m-0 text-[14px] leading-[1.6] text-lead">
+    {t.text}{' '}
+    <a href={privacyHref} class="font-semibold underline underline-offset-2">{t.more}</a>
+  </p>
+  <!-- Both choices are equally easy: same size, side by side. -->
+  <div class="mt-4 flex flex-wrap gap-2.5">
+    <button type="button" data-consent="granted" class:list={[button, 'bg-navy text-cream hover:bg-navy/90']}>
+      {t.accept}
+    </button>
+    <button
+      type="button"
+      data-consent="denied"
+      class:list={[button, 'border-[1.5px] border-navy/25 bg-transparent text-navy hover:border-navy/50']}
+    >
+      {t.decline}
+    </button>
+  </div>
+</section>
+
+<script>
+  import {
+    CONSENT_KEY,
+    classifyLink,
+    consentState,
+    isGaCookie,
+    isTrackedHost,
+    langFromPath,
+    parseConsent,
+    serializeConsent,
+    type ConsentValue,
+  } from '@lib/analytics';
+
+  type Gtag = (...args: unknown[]) => void;
+  const w = window as unknown as Window & { dataLayer?: unknown[]; gtag?: Gtag } & Record<string, unknown>;
+
+  const banner = document.getElementById('consent-banner')!;
+  const gaId = banner.dataset.gaId!;
+  const tracked = isTrackedHost(location.hostname, banner.dataset.siteUrl!);
+
+  // localStorage can be unavailable (private mode, blocked storage): then the banner simply asks again.
+  const readChoice = () => {
+    try {
+      return parseConsent(localStorage.getItem(CONSENT_KEY), Date.now());
+    } catch {
+      return null;
+    }
+  };
+  const saveChoice = (value: ConsentValue) => {
+    try {
+      localStorage.setItem(CONSENT_KEY, serializeConsent(value, Date.now()));
+    } catch {
+      /* the choice still applies to this page */
+    }
+  };
+
+  let active = false;
+  let scriptRequested = false;
+
+  /** After consent only: set up gtag and, on the real domain, load gtag.js. */
+  const start = () => {
+    w[`ga-disable-${gaId}`] = false;
+    if (!w.gtag) {
+      w.dataLayer = w.dataLayer || [];
+      // gtag must push the `arguments` object itself, that is what gtag.js reads.
+      w.gtag = function () {
+        w.dataLayer!.push(arguments);
+      };
+      w.gtag('consent', 'default', consentState('denied'));
+      w.gtag('consent', 'update', consentState('granted'));
+      w.gtag('js', new Date());
+      w.gtag('config', gaId);
+    } else {
+      w.gtag('consent', 'update', consentState('granted'));
+    }
+    if (tracked && !scriptRequested) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
+      document.head.append(script);
+      scriptRequested = true;
+    }
+    active = true;
+  };
+
+  /** Withdrawn consent: stop sending at once and remove the GA cookies. */
+  const stop = () => {
+    active = false;
+    w[`ga-disable-${gaId}`] = true;
+    w.gtag?.('consent', 'update', consentState('denied'));
+    const host = location.hostname;
+    const domains = ['', host, `.${host}`, `.${host.split('.').slice(-2).join('.')}`];
+    for (const cookie of document.cookie.split(';')) {
+      const name = cookie.split('=')[0].trim();
+      if (!isGaCookie(name, gaId)) continue;
+      for (const domain of domains) {
+        document.cookie = `${name}=; Max-Age=0; path=/${domain ? `; domain=${domain}` : ''}`;
+      }
+    }
+  };
+
+  const show = (focus: boolean) => {
+    banner.hidden = false;
+    if (focus) banner.querySelector<HTMLButtonElement>('button')?.focus();
+  };
+
+  banner.addEventListener('click', (e) => {
+    const value = (e.target as Element).closest<HTMLElement>('[data-consent]')?.dataset.consent;
+    if (value !== 'granted' && value !== 'denied') return;
+    saveChoice(value);
+    banner.hidden = true;
+    if (value === 'granted') start();
+    else if (active || w.gtag) stop();
+  });
+
+  // Tracking: one listener for every link on the page, including the React islands. It only
+  // reports the click and never cancels it, so WhatsApp, Instagram and the PDFs always open.
+  const onLinkClick = (e: MouseEvent) => {
+    const target = e.target as Element | null;
+    if (target?.closest('[data-consent-open]')) {
+      show(true);
+      return;
+    }
+    if (!active || !w.gtag) return;
+    const link = target?.closest<HTMLAnchorElement>('a[href]');
+    if (!link) return;
+    const event = classifyLink(link.getAttribute('href')!, location.href);
+    if (!event) return;
+    const location_ =
+      link.closest<HTMLElement>('[data-track-location]')?.dataset.trackLocation ??
+      (link.closest('#mobile-menu')
+        ? 'menu'
+        : link.closest('header')
+          ? 'header'
+          : link.closest('footer')
+            ? 'footer'
+            : 'content');
+    const product = link.closest<HTMLElement>('[data-product]')?.dataset.product;
+    w.gtag('event', event.name, {
+      ...event.params,
+      link_location: location_,
+      lang: langFromPath(location.pathname),
+      ...(product && { product }),
+      ...(event.name === 'pdf_download' && { link_type: link.hasAttribute('download') ? 'download' : 'open' }),
+    });
+  };
+  document.addEventListener('click', onLinkClick, { capture: true });
+  // Middle click opens the link in a new tab without a `click` event.
+  document.addEventListener('auxclick', (e) => e.button === 1 && onLinkClick(e), { capture: true });
+
+  const choice = readChoice();
+  if (choice === 'granted') start();
+  else if (choice === null) show(false);
+</script>

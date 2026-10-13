@@ -1,0 +1,33 @@
+---
+import Default from '@layouts/Default.astro';
+import Kicker from '@components/Kicker.astro';
+import { FaqList } from '@components/FaqList';
+import { getDeclarations } from '@data/documents';
+import { getDict, langPaths, langFromParam } from '@i18n/index';
+
+export const getStaticPaths = langPaths;
+
+const lang = langFromParam(Astro.params.lang);
+const t = getDict(lang);
+
+// The documents question goes right after "what is xylitol and is it safe".
+const docsItem = {
+  q: t.docs.faqQ,
+  a: t.docs.faqA,
+  docs: getDeclarations(lang).map((d) => ({
+    title: `${t.docs.declaration} — ${d.productName}`,
+    meta: d.valid,
+    href: d.file,
+    product: d.product,
+  })),
+};
+const items = [t.faq.items[0], docsItem, ...t.faq.items.slice(1)];
+---
+
+<Default lang={lang} title={t.meta.faq}>
+  <div class="mx-auto max-w-[860px] px-5 pt-[clamp(40px,5vw,76px)] pb-[clamp(56px,7vw,96px)]">
+    <Kicker>{t.faq.kicker}</Kicker>
+    <h1 class="mt-3 font-heading text-[clamp(32px,4.6vw,52px)] leading-[1.08] font-medium text-navy">{t.faq.title}</h1>
+    <FaqList client:idle items={items} openLabel={t.docs.open} downloadLabel={t.docs.download} />
+  </div>
+</Default>
