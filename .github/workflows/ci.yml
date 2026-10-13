@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # .env is not in git; CI takes the site address from the repository variable SITE_URL
+    # (Settings → Secrets and variables → Actions → Variables), with the production domain as fallback.
+    env:
+      PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'https://sunnysteppe.kz' }}
+      # Fake GA4 ID: this build is only tested, never deployed. It puts the consent banner and the
+      # event code into the pages; gtag.js is only requested on the real domain, which tests never open.
+      PUBLIC_GA_ID: G-TEST000000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+
+      - run: npx astro check
+      - run: npx tsc --noEmit
+      - run: npm run test:unit
+      - run: npx astro build
+      - run: node scripts/check-build.mjs
+
+      # Browsers are cached per Playwright version; system libraries are installed every time.
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # Production build from the step above, served by `astro preview`. The dev-server run
+      # (npm run test:e2e:dev) is for local checks only.
+      - run: npx playwright test
+        env:
+          E2E_PREBUILT: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

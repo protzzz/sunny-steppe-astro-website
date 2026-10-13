@@ -1,0 +1,15 @@
+# Weekly dependency PRs. Minor and patch updates come as one grouped PR to keep the noise
+# down; major versions (e.g. @astrojs/react 7) still arrive separately so they get a real look.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
