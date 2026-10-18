@@ -62,6 +62,18 @@ for (const lang of langs) {
         if (withoutLang(pagePath) === "/") expect.soft(await page.title()).toBe(t.meta.home);
         await expect.soft(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S/);
 
+        // schema.org: one JSON-LD block with the brand and the site.
+        const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+        expect.soft(jsonLd.length, "JSON-LD blocks").toBe(1);
+        const types = jsonLd.flatMap((text) => {
+          try {
+            return (JSON.parse(text)["@graph"] ?? []).map((n: { "@type": string }) => n["@type"]);
+          } catch {
+            return ["invalid JSON"];
+          }
+        });
+        expect.soft(types, "JSON-LD types").toEqual(["Organization", "WebSite"]);
+
         // Header and images.
         await expect.soft(page.getByRole("banner")).toBeVisible();
         await expect
