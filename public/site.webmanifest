@@ -1,0 +1,11 @@
+{
+  "name": "Sunny Steppe",
+  "short_name": "Sunny Steppe",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#fbf7ef",
+  "theme_color": "#fbf7ef",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
