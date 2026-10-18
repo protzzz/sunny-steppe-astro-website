@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { CONSENT_KEY } from "../../src/lib/analytics";
-import { getDict, isDev, localePath } from "./helpers";
+import { asProductionDomain, getDict, isDev, localePath, recordGoogle } from "./helpers";
 
 // GA4 consent tests. Build has a fake ID; requests to Google are stubbed and recorded,
 // events are read from dataLayer.
@@ -12,40 +12,11 @@ test.skip(!!process.env.BASE_URL, "tests the local build: it needs the fake GA I
 test.use({ storageState: { cookies: [], origins: [] } });
 
 const t = getDict("ru");
-const GOOGLE = /googletagmanager\.com|google-analytics\.com|analytics\.google\.com|doubleclick\.net/;
-
-/** Stubs Google requests; returns the requested URLs. */
-const recordGoogle = async (context: BrowserContext) => {
-  const urls: string[] = [];
-  await context.route(GOOGLE, (route) => {
-    urls.push(route.request().url());
-    return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
-  });
-  return urls;
-};
-
 /** Stubs WhatsApp and Instagram. */
 const stubExternalSites = (context: BrowserContext) =>
   context.route(/wa\.me|instagram\.com/, (route) =>
     route.fulfill({ status: 200, contentType: "text/html", body: "<title>stub</title>" }),
   );
-
-/** Serves the local build under PUBLIC_SITE_URL (where gtag.js may load); returns that origin. */
-const asProductionDomain = async (context: BrowserContext, page: Page, baseURL: string) => {
-  await page.goto(localePath("ru"));
-  const site = new URL((await page.locator("#consent-banner").getAttribute("data-site-url"))!);
-  await context.route(`${site.origin}/**`, async (route) => {
-    const url = new URL(route.request().url());
-    // Requests cancelled by navigation are fine.
-    try {
-      const response = await route.fetch({ url: new URL(url.pathname + url.search, baseURL).href });
-      await route.fulfill({ response });
-    } catch (error) {
-      if (!/disposed|closed|already handled/i.test(String(error))) throw error;
-    }
-  });
-  return site.origin;
-};
 
 type Entry = unknown[];
 const dataLayer = (page: Page): Promise<Entry[] | null> =>
