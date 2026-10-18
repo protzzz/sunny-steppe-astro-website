@@ -13,30 +13,28 @@ const tinted = variant === 'tinted';
 ---
 
 <div class:list={['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4', tinted ? 'gap-4' : 'gap-[18px]']}>
-  {
-    cards.map((c) => (
-      <div
+  {cards.map((c) => (
+    <div
+      class:list={[
+        'rounded-[20px] border',
+        tinted ? 'border-gold/22 bg-sand/45 px-5 py-6' : 'border-navy/9 bg-paper px-6 py-7',
+      ]}
+    >
+      <div class:list={['text-[10.5px] font-bold tracking-[.14em]', tinted ? 'text-bronze' : 'text-gold-ink']}>
+        {c.k}
+      </div>
+      <h3
         class:list={[
-          'rounded-[20px] border',
-          tinted ? 'border-gold/22 bg-sand/45 px-5 py-6' : 'border-navy/9 bg-paper px-6 py-7',
+          'm-0 font-heading font-semibold text-navy',
+          // Contacts page is narrower: smaller titles keep "Jet Logistics / Казпочта" on one line.
+          tinted
+            ? 'mt-[11px] text-[19px] leading-[1.24] lg:text-[clamp(16px,1.6vw,18px)]'
+            : 'mt-3 text-[20px] leading-[1.24]',
         ]}
       >
-        <div class:list={['text-[10.5px] font-bold tracking-[.14em]', tinted ? 'text-bronze' : 'text-gold-ink']}>
-          {c.k}
-        </div>
-        <h3
-          class:list={[
-            'm-0 font-heading font-semibold text-navy',
-            // Contacts page is narrower: smaller titles keep "Jet Logistics / Казпочта" on one line.
-            tinted
-              ? 'mt-[11px] text-[19px] leading-[1.24] lg:text-[clamp(16px,1.6vw,18px)]'
-              : 'mt-3 text-[20px] leading-[1.24]',
-          ]}
-        >
-          {c.t}
-        </h3>
-        <p class:list={['m-0 text-[14px] leading-[1.6] text-muted', tinted ? 'mt-[9px]' : 'mt-2.5']}>{c.d}</p>
-      </div>
-    ))
-  }
+        {c.t}
+      </h3>
+      <p class:list={['m-0 text-[14px] leading-[1.6] text-muted', tinted ? 'mt-[9px]' : 'mt-2.5']}>{c.d}</p>
+    </div>
+  ))}
 </div>

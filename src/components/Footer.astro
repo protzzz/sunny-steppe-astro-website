@@ -31,22 +31,30 @@ const heading = 'text-[10.5px] font-bold tracking-[.14em] text-honey';
 
     <div class="flex flex-col gap-[9px]">
       <div class={heading}>{t.nav}</div>
-      {
-        navItems.map((item) => (
-          <a href={localePath(lang, item.route)} class={link}>
-            {item.label}
-          </a>
-        ))
-      }
-      <a href={localePath(lang, '/documents')} class={link}>{t.documents}</a>
+      {navItems.map((item) => (
+        <a href={localePath(lang, item.route)} class={link}>
+          {item.label}
+        </a>
+      ))}
+      <a href={localePath(lang, '/documents')} class={link}>
+        {t.documents}
+      </a>
     </div>
 
     <div class="flex flex-col gap-[9px]">
       <div class={heading}>{t.contacts}</div>
-      <a href={contacts.phoneHref} class={link}>{contacts.phone}</a>
-      <a href={contacts.whatsappHref} target="_blank" rel="noopener noreferrer" class={link}>WhatsApp</a>
-      <a href={contacts.instagramHref} target="_blank" rel="noopener noreferrer" class={link}>{contacts.instagram}</a>
-      <a href={contacts.emailHref} class={link}>{contacts.email}</a>
+      <a href={contacts.phoneHref} class={link}>
+        {contacts.phone}
+      </a>
+      <a href={contacts.whatsappHref} target="_blank" rel="noopener noreferrer" class={link}>
+        WhatsApp
+      </a>
+      <a href={contacts.instagramHref} target="_blank" rel="noopener noreferrer" class={link}>
+        {contacts.instagram}
+      </a>
+      <a href={contacts.emailHref} class={link}>
+        {contacts.email}
+      </a>
     </div>
 
     <div class="flex flex-col gap-[9px]">
@@ -57,23 +65,22 @@ const heading = 'text-[10.5px] font-bold tracking-[.14em] text-honey';
 
   <div class="container pb-[30px]">
     <div class="flex flex-wrap justify-between gap-3 border-t border-milk/15 pt-5 text-[12px] text-milk/62">
-      <span>© {new Date().getFullYear()} Sunny Steppe</span><span>{t.disclaimer}</span>
+      <span>© {new Date().getFullYear()} Sunny Steppe</span>
+      <span>{t.disclaimer}</span>
     </div>
     <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px]">
-      <a href={localePath(lang, '/privacy')} class="text-milk/70 underline-offset-2 hover:text-honey hover:underline"
-        >{t.privacy}</a
-      >
-      {
-        cookieSettings && (
-          <button
-            type="button"
-            data-consent-open
-            class="cursor-pointer border-0 bg-transparent p-0 text-[12px] text-milk/70 underline-offset-2 hover:text-honey hover:underline"
-          >
-            {t.cookieSettings}
-          </button>
-        )
-      }
+      <a href={localePath(lang, '/privacy')} class="text-milk/70 underline-offset-2 hover:text-honey hover:underline">
+        {t.privacy}
+      </a>
+      {cookieSettings && (
+        <button
+          type="button"
+          data-consent-open
+          class="cursor-pointer border-0 bg-transparent p-0 text-[12px] text-milk/70 underline-offset-2 hover:text-honey hover:underline"
+        >
+          {t.cookieSettings}
+        </button>
+      )}
     </div>
   </div>
 </footer>

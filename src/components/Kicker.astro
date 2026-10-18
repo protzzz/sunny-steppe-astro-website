@@ -6,4 +6,6 @@ interface Props {
 const { class: className = 'text-gold-ink' } = Astro.props;
 ---
 
-<div class:list={['text-[11.5px] font-bold tracking-[.16em]', className]}><slot /></div>
+<div class:list={['text-[11.5px] font-bold tracking-[.16em]', className]}>
+  <slot />
+</div>

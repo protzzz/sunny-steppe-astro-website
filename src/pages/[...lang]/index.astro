@@ -31,29 +31,18 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
 
 <Default lang={lang} title={t.meta.home}>
   <section class="relative overflow-hidden bg-linear-[168deg] from-cream via-linen via-58% to-sand">
-    <div
-      class="pointer-events-none absolute -top-[140px] -right-[120px] size-[520px] animate-glow rounded-full bg-radial from-[rgba(226,182,96,.34)] to-[rgba(226,182,96,0)] to-68%"
-    >
-    </div>
-    <div
-      class="pointer-events-none absolute -bottom-[180px] -left-[140px] size-[460px] rounded-full bg-radial from-[rgba(88,132,196,.16)] to-[rgba(88,132,196,0)] to-70%"
-    >
-    </div>
+    <div class="pointer-events-none absolute -top-[140px] -right-[120px] size-[520px] animate-glow rounded-full bg-radial from-[rgba(226,182,96,.34)] to-[rgba(226,182,96,0)] to-68%"></div>
+    <div class="pointer-events-none absolute -bottom-[180px] -left-[140px] size-[460px] rounded-full bg-radial from-[rgba(88,132,196,.16)] to-[rgba(88,132,196,0)] to-70%"></div>
 
-    <div
-      class="relative container grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] items-center gap-[clamp(28px,4vw,60px)] pt-[clamp(48px,7vw,96px)] pb-[clamp(56px,7vw,88px)]"
-    >
+    <div class="relative container grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] items-center gap-[clamp(28px,4vw,60px)] pt-[clamp(48px,7vw,96px)] pb-[clamp(56px,7vw,88px)]">
       <div class="animate-rise">
-        <div
-          class="inline-flex items-center gap-[9px] rounded-full border border-navy/10 bg-white/72 py-[7px] pr-[15px] pl-[11px] text-[11px] font-bold tracking-[.14em] text-navy"
-        >
-          <span class="block size-2 rounded-full bg-honey"></span>{t.home.kicker}
+        <div class="inline-flex items-center gap-[9px] rounded-full border border-navy/10 bg-white/72 py-[7px] pr-[15px] pl-[11px] text-[11px] font-bold tracking-[.14em] text-navy">
+          <span class="block size-2 rounded-full bg-honey"></span>
+          {t.home.kicker}
         </div>
-        <h1
-          class="mt-5 font-heading text-[clamp(38px,5.6vw,68px)] leading-[1.04] font-medium tracking-[-.015em] text-navy"
-        >
-          {t.home.h1a}{' '}
-          <em class="text-gold-deep italic">{t.home.h1b}</em>{t.home.h1c && ` ${t.home.h1c}`}
+        <h1 class="mt-5 font-heading text-[clamp(38px,5.6vw,68px)] leading-[1.04] font-medium tracking-[-.015em] text-navy">
+          {t.home.h1a} <em class="text-gold-deep italic">{t.home.h1b}</em>
+          {t.home.h1c && ` ${t.home.h1c}`}
         </h1>
         <p class="mt-5 max-w-[46ch] text-[clamp(15px,1.35vw,17.5px)] leading-[1.62] text-lead">{t.home.lead}</p>
         <div class="mt-[30px] flex flex-wrap gap-3">
@@ -75,22 +64,17 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
           </a>
         </div>
         <div class="mt-[38px] flex flex-wrap gap-[clamp(20px,4vw,44px)] border-t border-navy/12 pt-[26px]">
-          {
-            t.home.stats.map((s) => (
-              <div>
-                <div class="font-heading text-[31px] leading-none text-navy">{s.v}</div>
-                <div class="mt-[7px] text-[11.5px] font-semibold tracking-[.1em] text-earth">{s.k}</div>
-              </div>
-            ))
-          }
+          {t.home.stats.map((s) => (
+            <div>
+              <div class="font-heading text-[31px] leading-none text-navy">{s.v}</div>
+              <div class="mt-[7px] text-[11.5px] font-semibold tracking-[.1em] text-earth">{s.k}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       <div class="relative flex min-h-[340px] items-center justify-center">
-        <div
-          class="absolute aspect-square w-[min(78%,380px)] rounded-full bg-radial-[at_40%_35%] from-white/95 via-sand/50 via-60% to-sand/0 to-72%"
-        >
-        </div>
+        <div class="absolute aspect-square w-[min(78%,380px)] rounded-full bg-radial-[at_40%_35%] from-white/95 via-sand/50 via-60% to-sand/0 to-72%"></div>
         <!-- LCP image: load first. -->
         <Picture
           src={lollipopFront}
@@ -144,7 +128,9 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
       </a>
     </div>
     <div class="cards-3 mt-9 gap-5">
-      {getProducts(lang).map((p) => <ProductCard product={p} lang={lang} ui={t.ui} compact />)}
+      {getProducts(lang).map((p) => (
+        <ProductCard product={p} lang={lang} ui={t.ui} compact />
+      ))}
     </div>
   </section>
 
@@ -155,27 +141,23 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
     <h2 class={h2}>{t.home.advTitle}</h2>
     <p class="mt-3.5 max-w-[58ch] text-[16px] leading-[1.6] text-lead">{t.home.advLead}</p>
     <div class="mt-[38px] grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        t.home.adv.map((a, i) => (
-          <div class="flex flex-col gap-3 rounded-[20px] border border-navy/9 bg-paper px-6 pt-[26px] pb-7">
-            <div
-              class="flex size-[42px] items-center justify-center rounded-[13px]"
-              style={{ background: advColors[i % advColors.length].bg, color: advColors[i % advColors.length].fg }}
-            >
-              <span class="font-heading text-[19px] font-semibold">{a.n}</span>
-            </div>
-            <h3 class="mt-1.5 font-heading text-[19px] leading-[1.22] font-semibold text-navy">{a.t}</h3>
-            <p class="m-0 text-[14px] leading-[1.58] text-muted">{a.d}</p>
+      {t.home.adv.map((a, i) => (
+        <div class="flex flex-col gap-3 rounded-[20px] border border-navy/9 bg-paper px-6 pt-[26px] pb-7">
+          <div
+            class="flex size-[42px] items-center justify-center rounded-[13px]"
+            style={{ background: advColors[i % advColors.length].bg, color: advColors[i % advColors.length].fg }}
+          >
+            <span class="font-heading text-[19px] font-semibold">{a.n}</span>
           </div>
-        ))
-      }
+          <h3 class="mt-1.5 font-heading text-[19px] leading-[1.22] font-semibold text-navy">{a.t}</h3>
+          <p class="m-0 text-[14px] leading-[1.58] text-muted">{a.d}</p>
+        </div>
+      ))}
     </div>
   </section>
 
   <section class="bg-linear-180 from-linen to-cream">
-    <div
-      class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(52px,6.5vw,88px)]"
-    >
+    <div class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(52px,6.5vw,88px)]">
       <div class="flex justify-center">
         <Picture
           src={candy}

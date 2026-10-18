@@ -16,9 +16,7 @@ const row = 'grid grid-cols-[1.2fr_1fr_1fr] gap-2 px-5 py-3.5';
 
 <Default lang={lang} title={t.meta.xylitol}>
   <section class="bg-linear-[168deg] from-[#EFF4FB] to-cream">
-    <div
-      class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(44px,5.5vw,80px)]"
-    >
+    <div class="container grid grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] items-center gap-[clamp(28px,4vw,56px)] py-[clamp(44px,5.5vw,80px)]">
       <div>
         <Kicker>{t.xyl.kicker}</Kicker>
         <h1 class="mt-3 font-heading text-[clamp(32px,4.6vw,54px)] leading-[1.08] font-medium text-navy">
@@ -45,37 +43,31 @@ const row = 'grid grid-cols-[1.2fr_1fr_1fr] gap-2 px-5 py-3.5';
 
   <section class="container py-[clamp(48px,6vw,84px)]">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        t.xyl.cards.map((c) => (
-          <div class="rounded-[20px] border border-navy/9 bg-paper px-6 py-[26px]">
-            <div class="font-heading text-[32px] leading-none text-gold-deep">{c.n}</div>
-            <h2 class="mt-3 font-heading text-[19px] leading-[1.24] font-semibold text-navy">{c.t}</h2>
-            <p class="mt-2.5 text-[14px] leading-[1.6] text-muted">{c.d}</p>
-          </div>
-        ))
-      }
+      {t.xyl.cards.map((c) => (
+        <div class="rounded-[20px] border border-navy/9 bg-paper px-6 py-[26px]">
+          <div class="font-heading text-[32px] leading-none text-gold-deep">{c.n}</div>
+          <h2 class="mt-3 font-heading text-[19px] leading-[1.24] font-semibold text-navy">{c.t}</h2>
+          <p class="mt-2.5 text-[14px] leading-[1.6] text-muted">{c.d}</p>
+        </div>
+      ))}
     </div>
 
-    <div
-      class="mt-[clamp(36px,5vw,60px)] grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-[clamp(24px,3.5vw,48px)]"
-    >
+    <div class="mt-[clamp(36px,5vw,60px)] grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-[clamp(24px,3.5vw,48px)]">
       <div>
         <h2 class={h2}>{t.xyl.compareTitle}</h2>
         <div class="overflow-hidden rounded-[20px] border border-navy/9 bg-paper">
           <div class:list={[row, 'bg-navy/5 text-[11.5px] font-bold tracking-[.08em] text-navy']}>
-            <span></span><span class="text-right">{t.xyl.colSugar}</span><span class="text-right text-gold-ink"
-              >{t.xyl.colXyl}</span
-            >
+            <span></span>
+            <span class="text-right">{t.xyl.colSugar}</span>
+            <span class="text-right text-gold-ink">{t.xyl.colXyl}</span>
           </div>
-          {
-            t.xyl.rows.map((r) => (
-              <div class:list={[row, 'border-b border-navy/7 text-[13.5px]']}>
-                <span class="font-medium text-subtle">{r.k}</span>
-                <span class="text-right text-muted">{r.a}</span>
-                <span class="text-right font-bold text-navy">{r.b}</span>
-              </div>
-            ))
-          }
+          {t.xyl.rows.map((r) => (
+            <div class:list={[row, 'border-b border-navy/7 text-[13.5px]']}>
+              <span class="font-medium text-subtle">{r.k}</span>
+              <span class="text-right text-muted">{r.a}</span>
+              <span class="text-right font-bold text-navy">{r.b}</span>
+            </div>
+          ))}
         </div>
       </div>
       <div>
