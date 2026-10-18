@@ -10,6 +10,7 @@ import ConsentBanner from '@components/ConsentBanner.astro';
 import { getNavItems } from '@data/navigation';
 import { getDict, localePath, type Lang } from '@i18n/index';
 import { resolveGaId } from '@lib/analytics';
+import { jsonLdString, siteJsonLd } from '@lib/structured-data';
 import { PUBLIC_GA_ID, PUBLIC_NOINDEX } from 'astro:env/client';
 
 interface Props {
@@ -51,8 +52,11 @@ const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- From the logo mark: npm run icons (scripts/make-icons.mjs). -->
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#fbf7ef" />
     <!-- Preload Cyrillic only. Variable fonts: one file, registered as weight 400. -->
     <Font cssVariable="--font-playfair" preload={[{ subset: 'cyrillic', weight: 400, style: 'normal' }]} />
     <Font cssVariable="--font-manrope" preload={[{ subset: 'cyrillic', weight: 400 }]} />
@@ -86,6 +90,8 @@ const gaId = resolveGaId(PUBLIC_GA_ID, import.meta.env.PROD);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageURL} />
+
+    <script is:inline type="application/ld+json" set:html={jsonLdString(siteJsonLd(Astro.site!))} />
   </head>
   <body>
     <!-- Skip link for keyboard users. -->
