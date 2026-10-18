@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
-import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
+import { expect, type APIRequestContext, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
 import astroConfig from "../../astro.config.mjs";
 import { getDict, langNames, langs, localePath, type Lang } from "../../src/i18n/index";
 
@@ -107,4 +107,42 @@ export const settle = async (page: Page) => {
     .locator('img[loading="lazy"]')
     .evaluateAll((imgs) => imgs.forEach((i) => ((i as HTMLImageElement).loading = "eager")));
   await page.evaluate(() => window.scrollTo(0, 0));
+};
+
+const GOOGLE = /googletagmanager\.com|google-analytics\.com|analytics\.google\.com|doubleclick\.net/;
+
+/** Stubs Google requests; returns the requested URLs. */
+export const recordGoogle = async (context: BrowserContext) => {
+  const urls: string[] = [];
+  await context.route(GOOGLE, (route) => {
+    urls.push(route.request().url());
+    return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+  });
+  return urls;
+};
+
+/**
+ * Serves the local build under PUBLIC_SITE_URL (where gtag.js may load); returns that origin.
+ * `pageHeaders` are added to HTML responses, e.g. the hosting's Content-Security-Policy.
+ */
+export const asProductionDomain = async (
+  context: BrowserContext,
+  page: Page,
+  baseURL: string,
+  pageHeaders: Record<string, string> = {},
+) => {
+  await page.goto(localePath("ru"));
+  const site = new URL((await page.locator("#consent-banner").getAttribute("data-site-url"))!);
+  await context.route(`${site.origin}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    // Requests cancelled by navigation are fine.
+    try {
+      const response = await route.fetch({ url: new URL(url.pathname + url.search, baseURL).href });
+      const isPage = route.request().resourceType() === "document";
+      await route.fulfill({ response, headers: { ...response.headers(), ...(isPage ? pageHeaders : {}) } });
+    } catch (error) {
+      if (!/disposed|closed|already handled/i.test(String(error))) throw error;
+    }
+  });
+  return site.origin;
 };
