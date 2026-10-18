@@ -12,9 +12,11 @@
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
     "test:links": "node scripts/check-build.mjs",
+    "icons": "node scripts/make-icons.mjs",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:dev": "E2E_MODE=dev playwright test",
+    "test:e2e:running": "E2E_MODE=dev BASE_URL=http://localhost:4321 playwright test",
     "test": "npm run test:unit && PUBLIC_GA_ID=G-TEST000000 npm run build && E2E_PREBUILT=1 playwright test",
     "lint": "eslint .",
     "astro": "astro",
@@ -28,7 +30,6 @@
     "astro": "^7.3.8",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
