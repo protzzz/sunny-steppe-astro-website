@@ -77,6 +77,12 @@ for (const file of htmlFiles) {
     ...html.matchAll(/<meta[^>]+(?:og:url|og:image|twitter:image)"[^>]+content="([^"]+)"/g),
     ...html.matchAll(/data-site-url="([^"]+)"/g),
   ].map((m) => m[1]);
+  // JSON-LD: the site's own URLs (Instagram and schema.org are external).
+  for (const [, json] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+    for (const [url] of json.matchAll(/https:\/\/[^"]+/g)) {
+      if (!/^https:\/\/(schema\.org|(www\.)?instagram\.com)(\/|$)/.test(url)) ownUrls.push(url);
+    }
+  }
   for (const url of ownUrls) {
     if (!url.startsWith(SITE_PREFIX)) errors.push(`Not on ${SITE.origin}: ${url}  (in ${where})`);
   }
