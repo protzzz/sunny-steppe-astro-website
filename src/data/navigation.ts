@@ -1,11 +1,12 @@
 import type { Dictionary } from "@i18n/types";
 
+// Menu order: products and information first, then the brand; contacts stay last, where visitors look for them.
 const routes = [
   ["/", "home"],
-  ["/about", "about"],
   ["/catalog", "catalog"],
   ["/xylitol", "xylitol"],
   ["/faq", "faq"],
+  ["/about", "about"],
   ["/contacts", "contacts"],
 ] as const;
 
