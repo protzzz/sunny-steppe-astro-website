@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 @theme {
   /* Below `nav`: burger menu. Below `wide`: no WhatsApp button in the header. */
   --breakpoint-nav: 1100px;
