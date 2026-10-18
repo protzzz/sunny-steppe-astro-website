@@ -177,18 +177,20 @@ GA4: G-XXXXXXXXXX, loads only on sunnysteppe.kz after consent
 Все внутренние ссылки заканчиваются на `/` (`trailingSlash: "always"`): так страницы лежат в `dist/`, и так их отдаёт
 любой хостинг без лишнего редиректа. Ссылки строятся только через `localePath()`.
 
-| Команда                | Что делает                                                                        |
-| :--------------------- | :-------------------------------------------------------------------------------- |
-| `npm run dev`          | Dev-сервер на `localhost:4321`                                                    |
-| `npm run build`        | `astro check`, сборка в `dist/` и `scripts/check-build.mjs`                       |
-| `npm run preview`      | Открыть собранный сайт                                                            |
-| `npm run check`        | Только проверка типов: `astro check` и `tsc --noEmit`                             |
-| `npm run lint`         | ESLint                                                                            |
-| `npm run format`       | Prettier                                                                          |
-| `npm test`             | Юнит-тесты, сборка и браузерные тесты на сборке. Это то же, что проверяет CI      |
-| `npm run test:unit`    | Только юнит-тесты (Vitest, `tests/unit`)                                          |
-| `npm run test:e2e`     | Браузерные тесты (Playwright, `tests/e2e`): сам собирает сайт и запускает preview |
-| `npm run test:e2e:dev` | Те же тесты на `astro dev`. Только локально: ловит ошибки, которых нет в сборке   |
+| Команда                    | Что делает                                                                                                                                                               |
+| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`              | Dev-сервер на `localhost:4321`                                                                                                                                           |
+| `npm run build`            | `astro check`, сборка в `dist/` и `scripts/check-build.mjs`                                                                                                              |
+| `npm run preview`          | Открыть собранный сайт                                                                                                                                                   |
+| `npm run icons`            | Иконки сайта (`favicon.ico`, `apple-touch-icon.png`, `icon-192.png`) из `src/assets/logo-mark.png`. Иконки 512 px нет: логотип всего 213 px, нужен векторный или крупнее |
+| `npm run check`            | Только проверка типов: `astro check` и `tsc --noEmit`                                                                                                                    |
+| `npm run lint`             | ESLint                                                                                                                                                                   |
+| `npm run format`           | Prettier                                                                                                                                                                 |
+| `npm test`                 | Юнит-тесты, сборка и браузерные тесты на сборке. Это то же, что проверяет CI                                                                                             |
+| `npm run test:unit`        | Только юнит-тесты (Vitest, `tests/unit`)                                                                                                                                 |
+| `npm run test:e2e`         | Браузерные тесты (Playwright, `tests/e2e`): сам собирает сайт и запускает preview                                                                                        |
+| `npm run test:e2e:dev`     | Те же тесты на `astro dev`. Только локально: ловит ошибки, которых нет в сборке                                                                                          |
+| `npm run test:e2e:running` | Те же тесты на уже запущенном `astro dev` (`localhost:4321`): проверка вашего сервера                                                                                    |
 
 ### Браузерные тесты подробнее
 
