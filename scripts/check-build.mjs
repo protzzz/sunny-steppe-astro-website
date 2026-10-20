@@ -20,7 +20,14 @@ const kzWords = JSON.parse(readFileSync(new URL("./kz-words.json", import.meta.u
 const FROM_PACKAGING = ["артикул", "ккал", "г"]; // as on the KZ side of the packaging
 const NOT_IN_TRANSLATION = ["каталог", "телефон", "география", "навигация", "философия", "ги"]; // our UI labels, to confirm with the translator
 const DECLARATION_NUMBER = ["еаэс", "д", "ра", "в"]; // parts of declaration numbers
-const SHARED_WORDS = new Set([...kzWords, ...FROM_PACKAGING, ...NOT_IN_TRANSLATION, ...DECLARATION_NUMBER]);
+const FROM_CLIENT_NOTES = ["гр"]; // client's KZ notes, 2026-10-20: "0 гр" on the home page
+const SHARED_WORDS = new Set([
+  ...kzWords,
+  ...FROM_PACKAGING,
+  ...NOT_IN_TRANSLATION,
+  ...DECLARATION_NUMBER,
+  ...FROM_CLIENT_NOTES,
+]);
 
 const MAX_IMAGE_KB = 400;
 
