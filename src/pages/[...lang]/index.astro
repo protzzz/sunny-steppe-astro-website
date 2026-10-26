@@ -66,7 +66,15 @@ const h2 = 'mt-3 font-heading text-[clamp(28px,3.6vw,44px)] leading-[1.12] font-
         <div class="mt-[38px] flex flex-wrap gap-[clamp(20px,4vw,44px)] border-t border-navy/12 pt-[26px]">
           {t.home.stats.map((s) => (
             <div>
-              <div class="font-heading text-[31px] leading-none text-navy">{s.v}</div>
+              <div class="font-heading text-[31px] leading-none text-navy lining-nums">
+                {s.v}
+                {s.u && (
+                  <>
+                    {' '}
+                    <em class="text-[.68em] text-gold-ink italic">{s.u}</em>
+                  </>
+                )}
+              </div>
               <div class="mt-[7px] text-[11.5px] font-semibold tracking-[.1em] text-earth">{s.k}</div>
             </div>
           ))}
