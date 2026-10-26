@@ -9,6 +9,7 @@ import {
   langOfPath,
   langSwitch,
   langs,
+  localePath,
   matchesTrailingSlash,
   settle,
   trailingSlash,
@@ -143,6 +144,19 @@ for (const lang of langs) {
 
         expect.soft(errors, "console errors and failed requests").toEqual([]);
       });
+    }
+  });
+}
+
+for (const lang of langs) {
+  test(`/${lang} home stats keep the unit apart from the value`, async ({ page }) => {
+    const t = getDict(lang);
+    await page.goto(localePath(lang));
+    for (const s of t.home.stats.filter((s) => s.u)) {
+      // Reads "0 гр", not "0гр"; the unit is its own styled element.
+      const stat = page.getByText(`${s.v} ${s.u}`, { exact: true });
+      await expect(stat).toBeVisible();
+      await expect(stat.locator("em")).toHaveText(s.u!);
     }
   });
 }
